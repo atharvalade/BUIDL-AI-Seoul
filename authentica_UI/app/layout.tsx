@@ -27,16 +27,16 @@ export default async function RootLayout({
           {/* Base layer - solid color for consistency */}
           <div className="absolute inset-0 bg-white" />
           
-          {/* Main gradient background - simplified for consistency */}
-          <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-gray-100" />
+          {/* Main gradient background - restored original colorful gradient */}
+          <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 to-cyan-100" />
           
           {/* Subtle texture overlay */}
           <div className="absolute inset-0 opacity-[0.015] bg-[url('/noise-texture.svg')]" />
           
-          {/* Decorative elements - repositioned and adjusted opacity */}
-          <div className="absolute top-[25%] right-[15%] w-[40vw] h-[40vw] max-w-3xl max-h-3xl rounded-full bg-gray-200 blur-[100px] opacity-[0.15] z-0" />
-          <div className="absolute bottom-[20%] left-[10%] w-[35vw] h-[35vw] max-w-2xl max-h-2xl rounded-full bg-gray-300 blur-[80px] opacity-[0.15] z-0" />
-          <div className="absolute top-[60%] right-[5%] w-[25vw] h-[25vw] max-w-xl max-h-xl rounded-full bg-gray-100 blur-[60px] opacity-[0.15] z-0" />
+          {/* Decorative elements - restored original colorful elements */}
+          <div className="absolute top-[25%] right-[15%] w-[40vw] h-[40vw] max-w-3xl max-h-3xl rounded-full bg-indigo-100 blur-[100px] opacity-[0.15] z-0" />
+          <div className="absolute bottom-[20%] left-[10%] w-[35vw] h-[35vw] max-w-2xl max-h-2xl rounded-full bg-blue-100 blur-[80px] opacity-[0.15] z-0" />
+          <div className="absolute top-[60%] right-[5%] w-[25vw] h-[25vw] max-w-xl max-h-xl rounded-full bg-cyan-100 blur-[60px] opacity-[0.15] z-0" />
           
           {/* Navbar transition - very subtle */}
           <div className="absolute top-0 left-0 right-0 h-[100px] bg-gradient-to-b from-white/60 to-transparent z-0" />

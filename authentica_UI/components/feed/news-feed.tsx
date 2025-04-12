@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import NewsCard from "../marketplace/news-card";
+import Image from "next/image";
 
 interface NewsItem {
   id: string;
@@ -190,91 +191,97 @@ export default function NewsFeed() {
   };
 
   return (
-    <div className="w-full h-full flex flex-col">
-      {/* Hero section with title and description */}
-      <div className="w-full bg-gradient-to-r from-gray-900 to-black text-white py-12 px-6">
-        <div className="max-w-6xl mx-auto">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">Your Verified News Feed</h1>
-          <p className="text-xl text-gray-300 max-w-3xl">
+    <div className="w-full flex flex-col">
+      {/* Hero section with title and description - Full-width with improved Apple-like styling */}
+      <div className="w-full bg-[#0F172A] text-white">
+        <div className="max-w-[1440px] mx-auto px-6 py-16 md:py-20">
+          <h1 className="text-4xl md:text-6xl font-bold mb-4 tracking-tight">Your Verified News Feed</h1>
+          <p className="text-lg md:text-xl text-gray-300 max-w-3xl leading-relaxed">
             Authentic news from verified sources to help you make better trading decisions.
           </p>
         </div>
       </div>
       
-      {/* News feed layout */}
-      <div className="flex flex-col md:flex-row w-full h-[calc(100vh-16rem)] bg-gray-50">
+      {/* News feed layout - Full-width container with proper Apple-like spacing */}
+      <div className="flex flex-col md:flex-row w-full h-[calc(100vh-13rem)] border-t border-gray-200">
         {/* News items sidebar */}
-        <div className="w-full md:w-1/3 lg:w-1/4 bg-white border-r border-gray-200 overflow-y-auto">
+        <div className="w-full md:w-[360px] bg-white border-r border-gray-200 h-full flex flex-col">
           <div className="sticky top-0 z-10 bg-white border-b border-gray-200 p-4">
-            <h2 className="text-xl font-semibold">Latest News</h2>
+            <h2 className="text-lg font-semibold text-gray-900">Latest News</h2>
             <p className="text-sm text-gray-500">Verified by TrueLens</p>
           </div>
           
-          {isLoading ? (
-            <div className="p-6 flex flex-col items-center justify-center">
-              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-gray-900"></div>
-              <p className="mt-4 text-gray-600">Loading news...</p>
-            </div>
-          ) : (
-            <motion.div 
-              className="p-4 space-y-4"
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-            >
-              {newsItems.map((news, index) => (
-                <motion.div 
-                  key={news.id}
-                  className={`cursor-pointer rounded-lg overflow-hidden border-2 transition-all ${selectedNews?.id === news.id ? 'border-black shadow-md' : 'border-transparent hover:border-gray-200'}`}
-                  onClick={() => handleSelectNews(news)}
-                  variants={itemVariants}
-                >
-                  <div className="flex flex-col">
-                    <div className="relative h-24">
-                      <img 
-                        src={news.imageUrl} 
-                        alt={news.title}
-                        className="absolute inset-0 w-full h-full object-cover"
-                      />
-                      {/* Source badge */}
-                      <div className="absolute bottom-2 left-2 flex items-center">
+          <div className="flex-1 overflow-y-auto">
+            {isLoading ? (
+              <div className="p-6 flex flex-col items-center justify-center h-full">
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-gray-900"></div>
+                <p className="mt-4 text-gray-600">Loading news...</p>
+              </div>
+            ) : (
+              <motion.div 
+                className="divide-y divide-gray-100"
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+              >
+                {newsItems.map((news) => (
+                  <motion.div 
+                    key={news.id}
+                    className={`cursor-pointer transition-all ${selectedNews?.id === news.id ? 'bg-gray-50' : 'hover:bg-gray-50'}`}
+                    onClick={() => handleSelectNews(news)}
+                    variants={itemVariants}
+                  >
+                    <div className="p-4">
+                      <div className="flex items-center space-x-2 mb-2">
                         <div className={`
-                          ${news.source === "Reuters" ? "bg-blue-600" : 
-                            news.source === "The Guardian" ? "bg-purple-600" : 
-                            news.source === "CoinDesk" ? "bg-yellow-600" : 
-                            news.source === "Bloomberg" ? "bg-red-600" : "bg-gray-600"}
-                          text-white text-xs font-medium px-2 py-0.5 rounded-sm`}
-                        >
+                          text-xs font-medium px-2 py-0.5 rounded-full
+                          ${news.source === "Reuters" ? "bg-blue-600 text-white" : 
+                            news.source === "The Guardian" ? "bg-purple-600 text-white" : 
+                            news.source === "CoinDesk" ? "bg-yellow-600 text-white" : 
+                            news.source === "Bloomberg" ? "bg-red-600 text-white" : 
+                            news.source === "TechCrunch" ? "bg-green-600 text-white" : "bg-gray-600 text-white"}
+                        `}>
                           {news.source}
                         </div>
-                      </div>
-                      
-                      {/* Verification badge */}
-                      {news.verified && (
-                        <div className="absolute top-2 right-2">
-                          <div className="bg-green-600 text-white text-xs font-medium px-1.5 py-0.5 rounded-sm flex items-center">
+                        <span className="text-xs text-gray-500">{news.date}</span>
+                        
+                        {/* Verification badge */}
+                        {news.verified && (
+                          <div className="bg-green-600 text-white text-xs font-medium px-1.5 py-0.5 rounded-full flex items-center">
                             <svg className="w-3 h-3 mr-0.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                               <path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                               <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
                             </svg>
-                            Verified
+                            <span className="text-[10px]">
+                              {news.confidence}%
+                            </span>
                           </div>
+                        )}
+                      </div>
+                      
+                      <div className="flex space-x-3">
+                        <div className="relative w-16 h-16 flex-shrink-0">
+                          <img 
+                            src={news.imageUrl} 
+                            alt={news.title}
+                            className="absolute inset-0 w-full h-full object-cover rounded-md"
+                          />
                         </div>
-                      )}
+                        <div>
+                          <h3 className="font-medium text-gray-900 text-sm mb-1 line-clamp-2">{news.title}</h3>
+                          <p className="text-xs text-gray-500 line-clamp-1">{news.summary}</p>
+                        </div>
+                      </div>
                     </div>
-                    <div className="p-3 bg-white">
-                      <h3 className="font-medium text-gray-900 text-sm mb-1 line-clamp-2">{news.title}</h3>
-                      <p className="text-xs text-gray-500">{news.date}</p>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </motion.div>
-          )}
+                  </motion.div>
+                ))}
+              </motion.div>
+            )}
+          </div>
         </div>
         
-        {/* Content viewer */}
-        <div className="w-full md:w-2/3 lg:w-3/4 overflow-y-auto bg-gray-50">
+        {/* Content viewer - Improved styling with Apple-like attention to detail */}
+        <div className="w-full flex-1 bg-white overflow-y-auto">
           <AnimatePresence mode="wait">
             {selectedNews ? (
               <motion.div
@@ -283,15 +290,16 @@ export default function NewsFeed() {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.3 }}
-                className="max-w-4xl mx-auto p-6 md:p-10"
+                className="max-w-4xl mx-auto p-6 md:p-12"
               >
                 {/* Header with source and date */}
-                <div className="flex items-center space-x-3 mb-6">
+                <div className="flex flex-wrap items-center gap-3 mb-8">
                   <div className={`
                     ${selectedNews.source === "Reuters" ? "bg-blue-600" : 
                       selectedNews.source === "The Guardian" ? "bg-purple-600" : 
                       selectedNews.source === "CoinDesk" ? "bg-yellow-600" : 
-                      selectedNews.source === "Bloomberg" ? "bg-red-600" : "bg-gray-600"}
+                      selectedNews.source === "Bloomberg" ? "bg-red-600" : 
+                      selectedNews.source === "TechCrunch" ? "bg-green-600" : "bg-gray-600"}
                     text-white text-sm font-medium px-3 py-1 rounded-full`}
                   >
                     {selectedNews.source}
@@ -308,42 +316,48 @@ export default function NewsFeed() {
                   )}
                 </div>
                 
-                {/* Title and image */}
-                <h1 className="text-3xl font-bold text-gray-900 mb-6">{selectedNews.title}</h1>
-                <div className="mb-8 rounded-xl overflow-hidden">
-                  <img 
-                    src={selectedNews.imageUrl} 
-                    alt={selectedNews.title}
-                    className="w-full h-auto object-cover"
-                  />
+                {/* Title */}
+                <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8 leading-tight tracking-tight">{selectedNews.title}</h1>
+                
+                {/* Large featured image with refined styling */}
+                <div className="mb-10 rounded-xl overflow-hidden shadow-sm">
+                  <div className="aspect-[16/9] relative">
+                    <img 
+                      src={selectedNews.imageUrl} 
+                      alt={selectedNews.title}
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                  </div>
                 </div>
                 
-                {/* Article content */}
-                <div className="prose prose-lg max-w-none mb-10">
+                {/* Article content with improved typography */}
+                <div className="prose prose-lg max-w-none mb-12">
                   {selectedNews.content.split('\n\n').map((paragraph, index) => (
-                    <p key={index} className="mb-4">{paragraph}</p>
+                    <p key={index} className="mb-6 text-gray-700 leading-relaxed">{paragraph}</p>
                   ))}
                 </div>
                 
-                {/* TrueLens AI Analysis section */}
-                <div className="bg-white border border-gray-200 rounded-xl p-6 mb-10 shadow-sm">
-                  <h2 className="text-2xl font-bold mb-6 flex items-center text-gray-900">
-                    <svg className="w-6 h-6 mr-2 text-black" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M12 16V12M12 8H12.01M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                    TrueLens AI Analysis
-                  </h2>
+                {/* TrueLens AI Analysis section - Improved with Apple-like attention to detail */}
+                <div className="bg-white border border-gray-200 rounded-2xl p-8 mb-12 shadow-sm">
+                  <div className="flex items-center mb-8">
+                    <div className="bg-gradient-to-r from-blue-600 to-indigo-600 w-10 h-10 rounded-full flex items-center justify-center shadow-md mr-4">
+                      <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 16V12M12 8H12.01M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </div>
+                    <h2 className="text-2xl font-bold text-gray-900">TrueLens AI Analysis</h2>
+                  </div>
                   
-                  <div className="space-y-6">
+                  <div className="space-y-8">
                     {/* AI Summary */}
                     <div>
-                      <h3 className="text-lg font-semibold mb-2 text-gray-900">Summary</h3>
-                      <p className="text-gray-700">{selectedNews.aiSummary}</p>
+                      <h3 className="text-lg font-semibold mb-3 text-gray-900">Summary</h3>
+                      <p className="text-gray-700 bg-gray-50 p-4 rounded-lg border border-gray-100">{selectedNews.aiSummary}</p>
                     </div>
                     
                     {/* Market sentiment */}
                     <div>
-                      <h3 className="text-lg font-semibold mb-2 text-gray-900">Market Sentiment</h3>
+                      <h3 className="text-lg font-semibold mb-3 text-gray-900">Market Sentiment</h3>
                       <div className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-medium ${getSentimentColor(selectedNews.sentiment)}`}>
                         {getSentimentIcon(selectedNews.sentiment)}
                         {selectedNews.sentiment.charAt(0).toUpperCase() + selectedNews.sentiment.slice(1)}
@@ -352,30 +366,310 @@ export default function NewsFeed() {
                     
                     {/* Trading insights */}
                     <div>
-                      <h3 className="text-lg font-semibold mb-2 text-gray-900">Trading Insights</h3>
-                      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                      <h3 className="text-lg font-semibold mb-3 text-gray-900">Trading Insights</h3>
+                      <div className="bg-gray-50 border border-gray-100 rounded-lg p-4">
                         <p className="text-gray-700">{selectedNews.tradingInsights}</p>
                       </div>
                     </div>
                   </div>
                 </div>
                 
-                {/* Sources and verification */}
-                <div className="bg-gray-50 border border-gray-200 rounded-xl p-6">
-                  <h3 className="text-lg font-semibold mb-3 text-gray-900">Verification Sources</h3>
-                  <div className="space-y-2">
-                    <div className="flex items-center">
-                      <div className="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
-                      <span className="text-gray-700">{selectedNews.source}</span>
+                {/* Add IPFS Integration visualization */}
+                <div className="bg-white border border-gray-200 rounded-2xl p-8 mb-10 shadow-sm">
+                  <div className="flex items-center mb-6">
+                    <div className="bg-gradient-to-r from-teal-500 to-cyan-600 w-10 h-10 rounded-full flex items-center justify-center shadow-md mr-4">
+                      <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M21 12L12 17L3 12M21 16L12 21L3 16M21 8L12 13L3 8L12 3L21 8Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
                     </div>
-                    <div className="flex items-center">
-                      <div className="w-3 h-3 bg-blue-500 rounded-full mr-2"></div>
-                      <span className="text-gray-700">TruthSocial</span>
+                    <h2 className="text-2xl font-bold text-gray-900">IPFS Verification</h2>
+                  </div>
+                  
+                  <div className="bg-gray-50 border border-gray-100 rounded-lg p-5 mb-6">
+                    <div className="flex flex-col md:flex-row md:items-center">
+                      <div className="flex-1">
+                        <div className="text-sm text-gray-500 mb-1">Content Hash (CID)</div>
+                        <div className="font-mono text-sm bg-gray-100 p-2 rounded mb-3 md:mb-0 overflow-x-auto">
+                          QmT5NvUtoM5nWFfrQdVrFtvGfKFmG7AHE8P34isapyhCxX
+                        </div>
+                      </div>
+                      <div className="md:pl-4 flex md:flex-col space-x-3 md:space-x-0 md:space-y-2">
+                        <a 
+                          href="#" 
+                          className="text-xs bg-cyan-600 text-white px-3 py-1 rounded-full inline-flex items-center hover:bg-cyan-700 transition-colors"
+                        >
+                          <svg className="w-3 h-3 mr-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M10 6H6C4.89543 6 4 6.89543 4 8V18C4 19.1046 4.89543 20 6 20H16C17.1046 20 18 19.1046 18 18V14M14 4H20M20 4V10M20 4L10 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                          View on IPFS
+                        </a>
+                        <a 
+                          href="#" 
+                          className="text-xs bg-gray-200 text-gray-800 px-3 py-1 rounded-full inline-flex items-center hover:bg-gray-300 transition-colors"
+                        >
+                          <svg className="w-3 h-3 mr-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9 12H15M12 9V15M3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                          Details
+                        </a>
+                      </div>
                     </div>
-                    <div className="flex items-center">
-                      <div className="w-3 h-3 bg-purple-500 rounded-full mr-2"></div>
-                      <span className="text-gray-700">X (Twitter)</span>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="p-4 bg-gray-50 rounded-lg border border-gray-100">
+                      <div className="text-sm font-medium text-gray-800 mb-1">Archive Date</div>
+                      <div className="text-sm text-gray-600">May 15, 2023 - 14:32 UTC</div>
                     </div>
+                    <div className="p-4 bg-gray-50 rounded-lg border border-gray-100">
+                      <div className="text-sm font-medium text-gray-800 mb-1">Verification Count</div>
+                      <div className="text-sm text-gray-600">87 verifications</div>
+                    </div>
+                    <div className="p-4 bg-gray-50 rounded-lg border border-gray-100">
+                      <div className="text-sm font-medium text-gray-800 mb-1">Smart Contract</div>
+                      <div className="text-sm font-mono text-gray-600 truncate">0x742...7a31</div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Source logos */}
+                <div className="bg-white border border-gray-200 rounded-2xl p-8 mb-12 shadow-sm">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-6">Verified Sources</h2>
+                  
+                  <div className="flex flex-wrap gap-8 justify-center">
+                    <div className="flex flex-col items-center">
+                      <div className="w-16 h-16 rounded-lg bg-gray-100 p-2 flex items-center justify-center mb-2">
+                        <svg viewBox="0 0 24 24" className="w-10 h-10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M23 3.00005C22.0424 3.67552 20.9821 4.19216 19.86 4.53005C19.2577 3.83756 18.4573 3.34674 17.567 3.12397C16.6767 2.90121 15.7395 2.95724 14.8821 3.2845C14.0247 3.61176 13.2884 4.19445 12.773 4.95376C12.2575 5.71308 11.9877 6.61238 12 7.53005V8.53005C10.2426 8.57561 8.50127 8.18586 6.93101 7.39549C5.36074 6.60513 4.01032 5.43868 3 4.00005C3 4.00005 -1 13 8 17C5.94053 18.398 3.48716 19.099 1 19C10 24 21 19 21 7.50005C20.9991 7.2215 20.9723 6.94364 20.92 6.67005C21.9406 5.66354 22.6608 4.39276 23 3.00005V3.00005Z" stroke="#1DA1F2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </div>
+                      <span className="text-sm font-medium text-gray-600">X (Twitter)</span>
+                    </div>
+                    
+                    <div className="flex flex-col items-center">
+                      <div className="w-16 h-16 rounded-lg bg-gray-100 p-2 flex items-center justify-center mb-2">
+                        <svg viewBox="0 0 24 24" className="w-10 h-10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <rect width="24" height="24" rx="4" fill="#FF0000" />
+                          <path d="M19.615 6.184c-.888-.888-2.517-1.184-5.565-1.184H9.949c-3.05 0-4.677.296-5.565 1.184C3.5 7.072 3.2 8.699 3.2 11.75v.5c0 3.05.296 4.677 1.184 5.565.888.888 2.517 1.184 5.565 1.184h4.101c3.05 0 4.677-.296 5.565-1.184.888-.888 1.184-2.517 1.184-5.565v-.5c0-3.05-.296-4.677-1.184-5.565zM9.75 8.75l6.5 3-6.5 3v-6z" fill="white"/>
+                        </svg>
+                      </div>
+                      <span className="text-sm font-medium text-gray-600">YouTube</span>
+                    </div>
+                    
+                    <div className="flex flex-col items-center">
+                      <div className="w-16 h-16 rounded-lg bg-gray-100 p-2 flex items-center justify-center mb-2">
+                        <svg viewBox="0 0 24 24" className="w-10 h-10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <rect width="24" height="24" rx="4" fill="#447BBF" />
+                          <path d="M7 8H17M7 12H17M7 16H13" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </div>
+                      <span className="text-sm font-medium text-gray-600">TruthSocial</span>
+                    </div>
+                    
+                    <div className="flex flex-col items-center">
+                      <div className="w-16 h-16 rounded-lg bg-gray-100 p-2 flex items-center justify-center mb-2">
+                        <svg viewBox="0 0 24 24" className="w-10 h-10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <rect width="24" height="24" rx="4" fill="#003D6E" />
+                          <path d="M12.295 4H16V12.846C16 16.196 13.56 17 10.52 17C7.435 17 5 16.188 5 12.846V4H8.706V12.604C8.706 14.119 9.245 14.853 10.52 14.853C11.795 14.853 12.295 14.119 12.295 12.604V4Z" fill="white"/>
+                        </svg>
+                      </div>
+                      <span className="text-sm font-medium text-gray-600">Reuters</span>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Market Sentiment Analysis */}
+                <div className="bg-white border border-gray-200 rounded-2xl p-8 mb-12 shadow-sm">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-6">Market Sentiment Analysis</h2>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div className="bg-gray-50 rounded-xl p-5 border border-gray-100">
+                      <h3 className="text-sm font-medium text-gray-500 mb-1">3-Day Sentiment</h3>
+                      <div className="flex items-center mb-2">
+                        <div className="text-xl font-bold text-gray-900 mr-2">Bullish</div>
+                        <div className="text-sm text-green-600 bg-green-50 px-2 py-0.5 rounded-full">+12%</div>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-1.5">
+                        <div className="bg-green-600 h-1.5 rounded-full" style={{ width: '68%' }}></div>
+                      </div>
+                      <div className="flex justify-between text-xs text-gray-500 mt-1">
+                        <span>Bearish</span>
+                        <span>Bullish</span>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-gray-50 rounded-xl p-5 border border-gray-100">
+                      <h3 className="text-sm font-medium text-gray-500 mb-1">7-Day Sentiment</h3>
+                      <div className="flex items-center mb-2">
+                        <div className="text-xl font-bold text-gray-900 mr-2">Neutral</div>
+                        <div className="text-sm text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">+2%</div>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-1.5">
+                        <div className="bg-blue-600 h-1.5 rounded-full" style={{ width: '52%' }}></div>
+                      </div>
+                      <div className="flex justify-between text-xs text-gray-500 mt-1">
+                        <span>Bearish</span>
+                        <span>Bullish</span>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-gray-50 rounded-xl p-5 border border-gray-100">
+                      <h3 className="text-sm font-medium text-gray-500 mb-1">30-Day Sentiment</h3>
+                      <div className="flex items-center mb-2">
+                        <div className="text-xl font-bold text-gray-900 mr-2">Bearish</div>
+                        <div className="text-sm text-red-600 bg-red-50 px-2 py-0.5 rounded-full">-8%</div>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-1.5">
+                        <div className="bg-red-600 h-1.5 rounded-full" style={{ width: '38%' }}></div>
+                      </div>
+                      <div className="flex justify-between text-xs text-gray-500 mt-1">
+                        <span>Bearish</span>
+                        <span>Bullish</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-gray-50 rounded-xl p-6 border border-gray-100">
+                    <h3 className="text-lg font-medium text-gray-900 mb-3">Recent Market Trends</h3>
+                    <p className="text-gray-700 mb-4">
+                      Market sentiment has been showing recovery over the past 3 days, shifting from bearish to bullish following recent positive economic developments and policy announcements. Short-term sentiment indicators suggest growing optimism among traders.
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      <div className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700">
+                        VIX down 3.2%
+                      </div>
+                      <div className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700">
+                        BTC dominance up 1.4%
+                      </div>
+                      <div className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-50 text-purple-700">
+                        Tech sector leading
+                      </div>
+                      <div className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-50 text-yellow-700">
+                        Gold stable
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Trading Suggestions */}
+                <div className="bg-gradient-to-r from-gray-900 to-blue-900 text-white rounded-2xl p-8 mb-12 shadow-lg">
+                  <div className="flex items-center mb-6">
+                    <div className="bg-white/15 rounded-full p-3 mr-4">
+                      <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 8V12L15 15M12 3C7.03 3 3 7.03 3 12C3 16.97 7.03 21 12 21C16.97 21 21 16.97 21 12C21 7.03 16.97 3 12 3Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </div>
+                    <h2 className="text-2xl font-bold">Trading Suggestions</h2>
+                  </div>
+                  
+                  <p className="text-gray-300 mb-6">
+                    Based on the verified news and current market sentiment, our AI suggests the following trading opportunities:
+                  </p>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/10 hover:bg-white/15 transition-colors">
+                      <div className="flex justify-between items-start mb-3">
+                        <h3 className="text-lg font-semibold">Retail Sector ETFs</h3>
+                        <div className="bg-green-700 text-white text-xs font-medium px-2 py-0.5 rounded">Buy</div>
+                      </div>
+                      <p className="text-sm text-gray-300 mb-4">
+                        Tax cuts likely to boost consumer spending. Consider retail-focused ETFs for exposure to potential sector growth.
+                      </p>
+                      <div className="flex items-center text-xs text-gray-400">
+                        <span className="flex items-center mr-3">
+                          <svg className="w-3 h-3 mr-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 8V16M8 12H16M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                          Medium Risk
+                        </span>
+                        <span className="flex items-center">
+                          <svg className="w-3 h-3 mr-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M21 13.2539C20.3647 14.5196 19.428 15.6258 18.278 16.4826C17.128 17.3394 15.7974 17.9285 14.3846 18.2018C12.9718 18.4751 11.5146 18.4249 10.1258 18.0556C8.73711 17.6862 7.45561 17.0084 6.37997 16.0777C5.30432 15.1469 4.46013 13.9877 3.9136 12.6834C3.36707 11.3791 3.13343 9.96461 3.23092 8.55372C3.32841 7.14283 3.75453 5.7761 4.4722 4.56224C5.18987 3.34837 6.17723 2.31384 7.355 1.53906" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M21 5L12 14L9 11" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                          84% Confidence
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/10 hover:bg-white/15 transition-colors">
+                      <div className="flex justify-between items-start mb-3">
+                        <h3 className="text-lg font-semibold">Technology Growth Stocks</h3>
+                        <div className="bg-green-700 text-white text-xs font-medium px-2 py-0.5 rounded">Buy</div>
+                      </div>
+                      <p className="text-sm text-gray-300 mb-4">
+                        Tax reform likely to increase corporate reinvestment in R&D. Focus on companies with strong innovation pipelines.
+                      </p>
+                      <div className="flex items-center text-xs text-gray-400">
+                        <span className="flex items-center mr-3">
+                          <svg className="w-3 h-3 mr-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 8V16M8 12H16M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                          High Risk
+                        </span>
+                        <span className="flex items-center">
+                          <svg className="w-3 h-3 mr-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M21 13.2539C20.3647 14.5196 19.428 15.6258 18.278 16.4826C17.128 17.3394 15.7974 17.9285 14.3846 18.2018C12.9718 18.4751 11.5146 18.4249 10.1258 18.0556C8.73711 17.6862 7.45561 17.0084 6.37997 16.0777C5.30432 15.1469 4.46013 13.9877 3.9136 12.6834C3.36707 11.3791 3.13343 9.96461 3.23092 8.55372C3.32841 7.14283 3.75453 5.7761 4.4722 4.56224C5.18987 3.34837 6.17723 2.31384 7.355 1.53906" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M21 5L12 14L9 11" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                          76% Confidence
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/10 hover:bg-white/15 transition-colors">
+                      <div className="flex justify-between items-start mb-3">
+                        <h3 className="text-lg font-semibold">Bitcoin & Large-Cap Crypto</h3>
+                        <div className="bg-yellow-600 text-white text-xs font-medium px-2 py-0.5 rounded">Hold</div>
+                      </div>
+                      <p className="text-sm text-gray-300 mb-4">
+                        Favorable tax treatment may increase institutional interest, but watch for regulatory developments in the coming weeks.
+                      </p>
+                      <div className="flex items-center text-xs text-gray-400">
+                        <span className="flex items-center mr-3">
+                          <svg className="w-3 h-3 mr-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 8V16M8 12H16M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                          Very High Risk
+                        </span>
+                        <span className="flex items-center">
+                          <svg className="w-3 h-3 mr-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M21 13.2539C20.3647 14.5196 19.428 15.6258 18.278 16.4826C17.128 17.3394 15.7974 17.9285 14.3846 18.2018C12.9718 18.4751 11.5146 18.4249 10.1258 18.0556C8.73711 17.6862 7.45561 17.0084 6.37997 16.0777C5.30432 15.1469 4.46013 13.9877 3.9136 12.6834C3.36707 11.3791 3.13343 9.96461 3.23092 8.55372C3.32841 7.14283 3.75453 5.7761 4.4722 4.56224C5.18987 3.34837 6.17723 2.31384 7.355 1.53906" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M21 5L12 14L9 11" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                          65% Confidence
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/10 hover:bg-white/15 transition-colors">
+                      <div className="flex justify-between items-start mb-3">
+                        <h3 className="text-lg font-semibold">Financial Services ETFs</h3>
+                        <div className="bg-red-700 text-white text-xs font-medium px-2 py-0.5 rounded">Sell</div>
+                      </div>
+                      <p className="text-sm text-gray-300 mb-4">
+                        Tax policy changes may reduce certain fee-based revenue streams in the short term for traditional financial institutions.
+                      </p>
+                      <div className="flex items-center text-xs text-gray-400">
+                        <span className="flex items-center mr-3">
+                          <svg className="w-3 h-3 mr-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 8V16M8 12H16M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                          Low Risk
+                        </span>
+                        <span className="flex items-center">
+                          <svg className="w-3 h-3 mr-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M21 13.2539C20.3647 14.5196 19.428 15.6258 18.278 16.4826C17.128 17.3394 15.7974 17.9285 14.3846 18.2018C12.9718 18.4751 11.5146 18.4249 10.1258 18.0556C8.73711 17.6862 7.45561 17.0084 6.37997 16.0777C5.30432 15.1469 4.46013 13.9877 3.9136 12.6834C3.36707 11.3791 3.13343 9.96461 3.23092 8.55372C3.32841 7.14283 3.75453 5.7761 4.4722 4.56224C5.18987 3.34837 6.17723 2.31384 7.355 1.53906" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M21 5L12 14L9 11" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                          70% Confidence
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-6 text-xs text-gray-400 text-center">
+                    <p>These suggestions are for informational purposes only and do not constitute financial advice. Always do your own research before making investment decisions.</p>
                   </div>
                 </div>
               </motion.div>
@@ -386,11 +680,13 @@ export default function NewsFeed() {
                 className="h-full flex items-center justify-center"
               >
                 <div className="text-center p-10">
-                  <svg className="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v10m2 2v-6m2 6V9a2 2 0 00-2-2H9a2 2 0 00-2 2v10a2 2 0 002 2h9a2 2 0 002-2zm-9-9h4m-4 3h2" />
-                  </svg>
+                  <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-gray-100 flex items-center justify-center">
+                    <svg className="w-12 h-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v10m2 2v-6m2 6V9a2 2 0 00-2-2H9a2 2 0 00-2 2v10a2 2 0 002 2h9a2 2 0 002-2zm-9-9h4m-4 3h2" />
+                    </svg>
+                  </div>
                   <h3 className="text-xl font-medium text-gray-900 mb-2">Select a news article</h3>
-                  <p className="text-gray-500">Choose an article from the list to view its content and analysis</p>
+                  <p className="text-gray-500 max-w-md mx-auto">Choose an article from the list to view its content and analysis</p>
                 </div>
               </motion.div>
             )}
