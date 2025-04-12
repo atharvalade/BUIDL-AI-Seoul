@@ -11,7 +11,7 @@ const mockNews = [
     id: 1,
     title: "Trump Administration Announces New Tariffs on Chinese Goods",
     description: "The Trump administration has announced a new 15% tariff on $300 billion worth of Chinese imports, escalating the ongoing trade war between the two countries.",
-    image: "/news/tariffs.jpg",
+    image: "https://images.unsplash.com/photo-1518458028785-8fbcd101ebb9?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8dHJhZGV8ZW58MHx8MHx8fDA%3D",
     source: "Financial Times",
     verified: true,
     date: "2023-08-15T12:30:00Z",
@@ -30,7 +30,7 @@ const mockNews = [
     id: 2,
     title: "Federal Reserve Signals Possible Interest Rate Cut",
     description: "Federal Reserve Chairman Jerome Powell has indicated that the central bank may be prepared to cut interest rates in response to growing economic uncertainties.",
-    image: "/news/fed.jpg",
+    image: "https://images.unsplash.com/photo-1611324065515-d32756028cad?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8ZmVkZXJhbCUyMHJlc2VydmV8ZW58MHx8MHx8fDA%3D",
     source: "The Wall Street Journal",
     verified: true,
     date: "2023-08-14T15:45:00Z",
@@ -49,7 +49,7 @@ const mockNews = [
     id: 3,
     title: "Bitcoin Surges Past $45,000 on Institutional Adoption News",
     description: "Bitcoin has broken through the $45,000 barrier following announcements from several major financial institutions about new cryptocurrency offerings.",
-    image: "/news/bitcoin.jpg",
+    image: "https://images.unsplash.com/photo-1518546305927-5a555bb7020d?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Yml0Y29pbnxlbnwwfHwwfHx8MA%3D%3D",
     source: "CoinDesk, Bloomberg",
     verified: true,
     date: "2023-08-13T08:20:00Z",
@@ -95,11 +95,12 @@ export default function FeedPage() {
               >
                 <div className="flex items-start gap-3">
                   <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-md">
-                    <div className="absolute inset-0 bg-muted flex items-center justify-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1M19 8l-7 5-7-5M5 19h14a2 2 0 002-2V9a2 2 0 00-2-2h-1" />
-                      </svg>
-                    </div>
+                    <Image
+                      src={news.image}
+                      alt={news.title}
+                      fill
+                      className="object-cover"
+                    />
                   </div>
                   
                   <div className="flex-1 space-y-1">
@@ -150,11 +151,12 @@ export default function FeedPage() {
               </div>
               
               <div className="relative h-48 sm:h-64 md:h-80 w-full mb-6 rounded-lg overflow-hidden">
-                <div className="absolute inset-0 bg-muted flex items-center justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-muted-foreground/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                </div>
+                <Image
+                  src={selectedNews.image}
+                  alt={selectedNews.title}
+                  fill
+                  className="object-cover"
+                />
               </div>
               
               <div 
