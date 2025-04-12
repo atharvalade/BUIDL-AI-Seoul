@@ -1,0 +1,9 @@
+saga:
+  threshold: 1
+  validators:
+    - "0x4cDF9dd5d678E4274e5DBB902E91b80373899513"
+
+rootstock:
+  threshold: 1
+  validators:
+    - "0x4cDF9dd5d678E4274e5DBB902E91b80373899513" 

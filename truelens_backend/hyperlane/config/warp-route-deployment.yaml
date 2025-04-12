@@ -1,0 +1,7 @@
+base:
+  chainName: saga
+  type: collateral
+  address: "0x1234567890123456789012345678901234567890" # TRUE token address on SAGA
+  isNft: false
+synthetics:
+  - chainName: rootstock

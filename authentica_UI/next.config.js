@@ -3,7 +3,7 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   images: {
-    domains: ["lh3.googleusercontent.com", "vercel.com"],
+    domains: ["lh3.googleusercontent.com", "vercel.com", "media.zenfs.com", "images.unsplash.com", "i.abcnewsfe.com"],
     contentDispositionType: 'attachment',
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",

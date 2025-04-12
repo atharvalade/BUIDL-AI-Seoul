@@ -1,0 +1,25 @@
+saga:
+  name: saga
+  chainId: 1712771388991266
+  domainId: 33333
+  protocol: ethereum
+  rpcUrls:
+    - http: https://your-saga-chainlet-rpc-url
+  isTestnet: true
+  nativeToken:
+    name: TRUE
+    symbol: TRUE
+    decimals: 18
+
+rootstock:
+  name: rootstock
+  chainId: 31
+  domainId: 31
+  protocol: ethereum
+  rpcUrls:
+    - http: https://public-node.testnet.rsk.co
+  isTestnet: true
+  nativeToken:
+    name: tRBTC
+    symbol: tRBTC
+    decimals: 18 

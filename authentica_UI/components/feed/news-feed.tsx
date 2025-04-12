@@ -22,30 +22,58 @@ interface NewsItem {
   tradeRecommendations?: { direction: 'buy' | 'sell'; symbol: string; rationale?: string; targetPrice?: string }[];
   ipfsHash?: string;
   socialSources?: string[];
+  sourceLinks?: { url: string; source: string; date?: string }[];
 }
+
+// IPFS CIDs for news content (groups 1-8)
+const newsCIDs = [
+  // "QmRXwu5Avm2BAi8Po4urcTtFe8hC1Uw71WN8AxNiXDWpTR", // Group 1
+  // "QmNoigZEW5c43inrm2hrMkinqVcJpkjJ1CP4PymsoqYfkG", // Group 2
+  "QmW47pENknnq1Lo9XzZw3dLHzD2GbNvHSkz96ecvVVSXSU", // Group 3
+  // "QmRD26ryLf3KYKzGBhKoM2Mnbuw18UGYudtrSEhXAP128L", // Group 4
+  // "QmWXqEJqT9vGmPYdrrPqHQx7zx3676HB9HkJxoANV1Q82K", // Group 5
+  "QmdJrCRCKoLDbBMSpr6CbM3q12Dm8KSUhGU18niLKKTghQ", // Group 6
+  "QmSxdsFiW5t3MeQMoZLqjTyKjRxEnZGQtEFSgYrcjr9Jrf", // Group 7
+  "QmYbWsko1qGmDHehs6DpHRvnBT4rrmw9NPcs2DH84wsZ2W"  // Group 8
+];
+
+// Logo path constants
+const LOGO_PATHS = {
+  REUTERS: "/source-logos/reuters.svg",
+  GUARDIAN: "/source-logos/guardian.svg",
+  BLOOMBERG: "/source-logos/bloomberg.svg",
+  COINDESK: "/source-logos/coindesk.svg",
+  TECHCRUNCH: "/source-logos/techcrunch.svg",
+  X: "/source-logos/x.svg",
+  TRUTH: "/source-logos/truth-social.svg",
+  YOUTUBE: "/source-logos/youtube.svg",
+  YAHOO_FINANCE: "/source-logos/yahoo-finance.svg",
+  YAHOO: "/source-logos/yahoo.svg",
+  USNEWS: "/source-logos/usnews.svg",
+  ABC_NEWS: "/source-logos/abc-news.svg",
+  DEFAULT: "/source-logos/news.svg"
+};
 
 // Add helper function to determine source logos
 const getSourceLogo = (source: string) => {
-  switch(source) {
-    case "Reuters":
-      return "/source-logos/reuters.svg";
-    case "The Guardian":
-      return "/source-logos/guardian.svg";
-    case "Bloomberg":
-      return "/source-logos/bloomberg.svg";
-    case "CoinDesk":
-      return "/source-logos/coindesk.svg";
-    case "TechCrunch":
-      return "/source-logos/techcrunch.svg";
-    case "X":
-      return "/source-logos/x.svg";
-    case "Truth Social":
-      return "/source-logos/truth-social.svg";
-    case "YouTube":
-      return "/source-logos/youtube.svg";
-    default:
-      return "/source-logos/news.svg";
-  }
+  // Normalize the source name for comparison
+  const normalizedSource = source.toLowerCase().trim();
+  
+  if (normalizedSource.includes('reuters')) return LOGO_PATHS.REUTERS;
+  if (normalizedSource.includes('guardian')) return LOGO_PATHS.GUARDIAN;
+  if (normalizedSource.includes('bloomberg')) return LOGO_PATHS.BLOOMBERG;
+  if (normalizedSource.includes('coindesk')) return LOGO_PATHS.COINDESK;
+  if (normalizedSource.includes('techcrunch')) return LOGO_PATHS.TECHCRUNCH;
+  if (normalizedSource.includes('x') || normalizedSource.includes('twitter')) return LOGO_PATHS.X;
+  if (normalizedSource.includes('truth')) return LOGO_PATHS.TRUTH;
+  if (normalizedSource.includes('youtube')) return LOGO_PATHS.YOUTUBE;
+  if (normalizedSource.includes('yahoo finance')) return LOGO_PATHS.YAHOO_FINANCE;
+  if (normalizedSource.includes('yahoo')) return LOGO_PATHS.YAHOO;
+  if (normalizedSource.includes('u.s. news') || normalizedSource.includes('usnews')) return LOGO_PATHS.USNEWS;
+  if (normalizedSource.includes('abc news') || normalizedSource.includes('abcnews')) return LOGO_PATHS.ABC_NEWS;
+  
+  // Default logo for unknown sources
+  return LOGO_PATHS.DEFAULT;
 };
 
 export default function NewsFeed() {
@@ -53,103 +81,98 @@ export default function NewsFeed() {
   const [isLoading, setIsLoading] = useState(true);
   const [newsItems, setNewsItems] = useState<NewsItem[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [showFlagDialog, setShowFlagDialog] = useState(false);
+  const [flaggedItem, setFlaggedItem] = useState<string | null>(null);
 
-  // Mock data for demonstration
+  // Fetch data from IPFS
   useEffect(() => {
-    // Simulate loading news data
-    setTimeout(() => {
-      setNewsItems([
-        {
-          id: "1",
-          title: "Trump Administration Announces New Tax Cuts for Businesses",
-          source: "Reuters",
-          date: "2 hours ago",
-          summary: "The Trump administration unveiled a comprehensive tax reform plan aimed at stimulating economic growth.",
-          imageUrl: "https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&q=80&w=2562&ixlib=rb-4.0.3",
-          content: "In a major policy announcement today, the Trump administration unveiled a comprehensive tax reform plan that would slash corporate tax rates from 21% to 15%. The proposal, which aims to stimulate economic growth and job creation, also includes provisions for individual tax relief and simplification of the tax code.\n\nTreasury Secretary outlined the details of the plan during a press conference at the White House, emphasizing its potential impact on small businesses and middle-class Americans. 'This is about creating jobs and opportunities for hardworking Americans,' he said.\n\nMarket analysts are already predicting significant movements in both stock and cryptocurrency markets as investors digest the implications of the proposed tax cuts. The Dow Jones Industrial Average jumped 2.3% following the announcement.",
-          aiSummary: "The Trump administration has proposed reducing corporate tax rates from 21% to 15%, alongside individual tax relief measures. This announcement is expected to have positive implications for businesses and potentially stimulate economic growth.",
-          tradingInsights: "This news is likely to create bullish sentiment for US stocks, particularly in sectors most impacted by corporate tax rates such as retail, manufacturing, and technology. Cryptocurrencies may also see positive movement as reduced taxes could increase institutional investment capacity.",
-          sentiment: "positive",
-          confidence: 92,
-          verified: true,
-          tradeRecommendations: [
-            { direction: 'buy', symbol: 'AAPL', rationale: 'Apple is expected to benefit from the tax cuts', targetPrice: '$150' },
-            { direction: 'buy', symbol: 'GOOGL', rationale: 'Google is expected to benefit from the tax cuts', targetPrice: '$2800' },
-          ],
-          ipfsHash: 'QmXZ4YEWQfKRKvDYYBNqFtfFhUazdJPEzuzh6BDFnj4xJr',
-          socialSources: ['Twitter', 'Facebook']
-        },
-        {
-          id: "2",
-          title: "Federal Reserve Signals Possible Interest Rate Hike",
-          source: "The Guardian",
-          date: "5 hours ago",
-          summary: "Fed minutes reveal discussions about potential rate increases to combat inflation pressures.",
-          imageUrl: "https://images.unsplash.com/photo-1607026091390-6ccc9137de35?auto=format&fit=crop&q=80&w=2940&ixlib=rb-4.0.3",
-          content: "Minutes from the Federal Reserve's latest meeting indicate that officials are considering an interest rate hike sooner than previously anticipated. The discussion comes amid rising inflation concerns and stronger economic data.\n\nAccording to the minutes, several committee members expressed the view that if the economy continues to recover at its current pace, it may be appropriate to begin discussing a plan for adjusting the pace of asset purchases and raising the federal funds rate.\n\nThis potential policy shift marks a significant change from the Fed's prior stance, which had emphasized maintaining low rates through 2023. Market participants are now recalibrating their expectations for monetary policy over the coming year.",
-          aiSummary: "The Federal Reserve is considering raising interest rates earlier than previously indicated due to inflation concerns and positive economic data, according to recently released meeting minutes.",
-          tradingInsights: "This news could create headwinds for growth stocks and cryptocurrencies, which typically perform better in low-interest environments. Consider reducing exposure to high-multiple tech stocks and increasing allocation to financial sector stocks, which often benefit from higher rates.",
-          sentiment: "negative",
-          confidence: 87,
-          verified: true,
-          tradeRecommendations: [
-            { direction: 'sell', symbol: 'TSLA', rationale: 'Tesla stock may underperform in a higher interest rate environment', targetPrice: '$100' },
-          ],
-          ipfsHash: 'QmXZ4YEWQfKRKvDYYBNqFtfFhUazdJPEzuzh6BDFnj4xJr',
-          socialSources: ['Twitter', 'Facebook']
-        },
-        {
-          id: "3",
-          title: "Major Cryptocurrency Exchange Announces New Regulatory Compliance Measures",
-          source: "CoinDesk",
-          date: "1 day ago",
-          summary: "Leading exchange implements enhanced KYC protocols following increased regulatory scrutiny.",
-          imageUrl: "https://images.unsplash.com/photo-1621761191319-c6fb62004040?auto=format&fit=crop&q=80&w=2787&ixlib=rb-4.0.3",
-          content: "One of the world's largest cryptocurrency exchanges announced today that it will be implementing stricter Know-Your-Customer (KYC) and Anti-Money Laundering (AML) protocols across its platform. The move comes in response to increased regulatory scrutiny from financial authorities around the world.\n\nThe exchange will now require all users to complete enhanced verification procedures, including providing government-issued identification and proof of address. The company also stated it will be limiting daily withdrawal amounts for accounts that have not completed the full verification process.\n\nIndustry analysts view this development as part of a broader trend toward greater regulation in the cryptocurrency space, with potential implications for market liquidity and institutional adoption.",
-          aiSummary: "A major cryptocurrency exchange is implementing stricter KYC and AML protocols in response to regulatory pressures, requiring enhanced user verification and limiting withdrawals for unverified accounts.",
-          tradingInsights: "While increased regulation may create short-term volatility in cryptocurrency markets, the long-term effect could be positive by legitimizing the asset class and encouraging institutional participation. Consider maintaining positions in larger, regulatory-compliant cryptocurrencies.",
-          sentiment: "neutral",
-          confidence: 78,
-          verified: true,
-          ipfsHash: 'QmXZ4YEWQfKRKvDYYBNqFtfFhUazdJPEzuzh6BDFnj4xJr',
-          socialSources: ['Twitter', 'Facebook']
-        },
-        {
-          id: "4",
-          title: "Global Shipping Disruption Threatens Supply Chain Recovery",
-          source: "Bloomberg",
-          date: "3 days ago",
-          summary: "Ongoing port congestion and container shortages raise concerns about economic impact.",
-          imageUrl: "https://images.unsplash.com/photo-1494412574643-ff11b0a5c1c1?auto=format&fit=crop&q=80&w=2940&ixlib=rb-4.0.3",
-          content: "Global shipping disruptions continue to worsen as port congestion, container shortages, and labor issues plague major trade routes. The situation threatens to derail the fragile economic recovery and could lead to higher consumer prices across various sectors.\n\nMajor ports in Asia, Europe, and North America are reporting unprecedented backlogs, with some vessels waiting weeks to unload cargo. The delays are causing ripple effects throughout supply chains, with manufacturers reporting production slowdowns due to parts shortages.\n\nMaritime industry experts warn that the disruptions could persist into next year, potentially affecting holiday retail seasons and exacerbating inflation pressures that have already begun to concern policymakers.",
-          aiSummary: "Global shipping is experiencing severe disruptions due to port congestion, container shortages, and labor issues, threatening economic recovery and potentially increasing consumer prices.",
-          tradingInsights: "This ongoing situation could negatively impact retail and manufacturing stocks dependent on timely imports, while potentially benefiting domestic producers with less exposure to international supply chains. Logistics companies may see mixed results as volume increases but costs rise.",
-          sentiment: "negative",
-          confidence: 85,
-          verified: false,
-          ipfsHash: 'QmXZ4YEWQfKRKvDYYBNqFtfFhUazdJPEzuzh6BDFnj4xJr',
-          socialSources: ['Twitter', 'Facebook']
-        },
-        {
-          id: "5",
-          title: "Tech Giant Announces Major AI Investment Initiative",
-          source: "TechCrunch",
-          date: "4 days ago",
-          summary: "Company commits $10 billion to artificial intelligence research and development over next five years.",
-          imageUrl: "https://images.unsplash.com/photo-1531297484001-80022131f5a1?auto=format&fit=crop&q=80&w=2020&ixlib=rb-4.0.3",
-          content: "A leading technology corporation has announced a $10 billion investment in artificial intelligence research and development over the next five years. The initiative will focus on advancing generative AI models, quantum computing applications, and integration of AI across the company's product ecosystem.\n\nAs part of the announcement, the company revealed plans to double its AI research staff and establish new AI labs in several global technology hubs. The company's CEO emphasized that artificial intelligence represents 'the most transformative technology of our generation' and would be central to the firm's long-term strategy.\n\nAnalysts noted that this substantial commitment highlights the intensifying competition in the AI space among major tech companies, all vying for dominance in what is increasingly seen as the next frontier of technological innovation.",
-          aiSummary: "A major tech company has committed $10 billion to AI research and development over five years, focusing on generative AI, quantum computing, and product integration while doubling its AI research staff.",
-          tradingInsights: "This significant investment signals confidence in AI technology's future and may boost the company's stock. Consider this positive for the broader tech sector, particularly companies specializing in semiconductors and cloud computing infrastructure needed for AI development.",
-          sentiment: "positive",
-          confidence: 90,
-          verified: true,
-          ipfsHash: 'QmXZ4YEWQfKRKvDYYBNqFtfFhUazdJPEzuzh6BDFnj4xJr',
-          socialSources: ['Twitter', 'Facebook']
-        }
-      ]);
-      setSelectedNewsItem("1");
-      setIsLoading(false);
-    }, 1500);
+    const fetchNewsFromIPFS = async () => {
+      setIsLoading(true);
+      try {
+        const newsPromises = newsCIDs.map(async (cid, index) => {
+          try {
+            const response = await fetch(`https://gateway.pinata.cloud/ipfs/${cid}`);
+            if (!response.ok) {
+              throw new Error(`Failed to fetch from IPFS: ${response.statusText}`);
+            }
+            const data = await response.json();
+            
+            // Map the IPFS response to our NewsItem structure
+            const buyRecs = data.trading_recommendations?.buy || [];
+            const sellRecs = data.trading_recommendations?.sell || [];
+            
+            const tradeRecommendations = [
+              ...buyRecs.map((rec: any) => ({
+                direction: 'buy' as const,
+                symbol: rec.symbol,
+                rationale: rec.reason,
+                targetPrice: ''
+              })),
+              ...sellRecs.map((rec: any) => ({
+                direction: 'sell' as const,
+                symbol: rec.symbol,
+                rationale: rec.reason,
+                targetPrice: ''
+              }))
+            ];
+            
+            // Determine the source
+            const source = data.sources?.[0] || 'Unknown';
+            
+            // Get source links if available
+            const sourceLinks = data.source_links || [];
+            
+            return {
+              id: (index + 1).toString(),
+              title: data.title,
+              source: source,
+              date: "Today",
+              summary: data.summary,
+              imageUrl: data.image_url || `https://images.unsplash.com/photo-${1540000000 + index * 10000}?auto=format&fit=crop`,
+              content: data.summary + "\n\n" + (data.sentiment_explanation || ""),
+              aiSummary: data.summary,
+              tradingInsights: data.sentiment_explanation || "This news item may impact trading decisions.",
+              sentiment: data.sentiment as "positive" | "negative" | "neutral",
+              confidence: Math.floor(70 + Math.random() * 30), // Random confidence between 70-100%
+              verified: true,
+              tradeRecommendations,
+              ipfsHash: cid,
+              socialSources: data.sources || [],
+              sourceLinks: sourceLinks
+            };
+          } catch (err) {
+            console.error(`Error fetching CID ${cid}:`, err);
+            // Return a fallback news item if fetching fails
+            return {
+              id: (index + 1).toString(),
+              title: `News from IPFS (CID: ${cid.substring(0, 8)}...)`,
+              source: "IPFS",
+              date: "Today",
+              summary: "This content could not be loaded from IPFS.",
+              imageUrl: `https://images.unsplash.com/photo-${1540000000 + index * 10000}?auto=format&fit=crop`,
+              content: "Content unavailable. Please try again later.",
+              aiSummary: "Content unavailable.",
+              tradingInsights: "No trading insights available.",
+              sentiment: "neutral" as "positive" | "negative" | "neutral",
+              confidence: 0,
+              verified: false,
+              ipfsHash: cid,
+              sourceLinks: []
+            };
+          }
+        });
+        
+        const fetchedNews = await Promise.all(newsPromises);
+        setNewsItems(fetchedNews);
+        setSelectedNewsItem("1"); // Select the first news item by default
+      } catch (error) {
+        console.error("Error fetching news:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchNewsFromIPFS();
   }, []);
 
   // Function to handle search
@@ -164,6 +187,21 @@ export default function NewsFeed() {
   const handleSelectNews = (news: NewsItem) => {
     setSelectedNewsItem(news.id);
   };
+
+  // Function to handle flagging news
+  const handleFlagNews = (id: string) => {
+    setFlaggedItem(id);
+    setShowFlagDialog(true);
+  };
+
+  // Function to submit flag
+  const submitFlag = () => {
+    // In a real implementation, this would connect to backend
+    // For demo, just update UI
+    setShowFlagDialog(false);
+    // Show a toast or notification
+    alert("Thank you for flagging this content. Our verification team will review it.");
+  }
 
   // Framer Motion variants
   const containerVariants = {
@@ -234,6 +272,76 @@ export default function NewsFeed() {
 
   return (
     <>
+      {/* Global styles for animations */}
+      <style jsx global>{`
+        @keyframes slideUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes pulse {
+          0% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.2); }
+          70% { box-shadow: 0 0 0 15px rgba(79, 70, 229, 0); }
+          100% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0); }
+        }
+        
+        @keyframes shimmer {
+          0% { background-position: -1000px 0; }
+          100% { background-position: 1000px 0; }
+        }
+        
+        .animate-fadeIn {
+          animation: fadeIn 0.3s ease-out forwards;
+        }
+        
+        .animate-pulse-subtle {
+          animation: pulse 2s infinite;
+        }
+        
+        .card-hover-effect {
+          transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        .card-hover-effect:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .button-hover-effect {
+          transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        .button-hover-effect:hover {
+          transform: translateY(-1px);
+        }
+        
+        .button-hover-effect:active {
+          transform: translateY(1px);
+        }
+        
+        .shimmer-bg {
+          background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0) 100%);
+          background-size: 1000px 100%;
+          animation: shimmer 2s infinite linear;
+        }
+        
+        .morphing-bg {
+          background-size: 300% 300%;
+          animation: gradient 15s ease infinite;
+        }
+        
+        @keyframes gradient {
+          0% { background-position: 0% 0%; }
+          50% { background-position: 100% 100%; }
+          100% { background-position: 0% 0%; }
+        }
+      `}</style>
+
       {/* Enhanced selectors to properly hide gradient backgrounds and ensure white background */}
       <style jsx global>{`
         body {
@@ -314,11 +422,17 @@ export default function NewsFeed() {
             <div className="flex-1 overflow-y-auto px-3 py-3 divide-y divide-slate-100/80">
               {isLoading ? (
                 <div className="p-6 flex flex-col items-center justify-center h-full">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-700"></div>
-                  <p className="mt-4 text-slate-600 text-sm">Loading news...</p>
+                  <div className="relative w-20 h-20">
+                    <div className="absolute inset-0 rounded-full border-4 border-slate-200"></div>
+                    <div className="absolute inset-0 rounded-full border-4 border-indigo-600 border-t-transparent animate-spin"></div>
+                  </div>
+                  <p className="mt-6 text-slate-600 text-sm font-medium">Loading latest verified news...</p>
+                  <div className="mt-4 w-48 h-2 bg-slate-100 rounded overflow-hidden">
+                    <div className="h-full w-full shimmer-bg"></div>
+                  </div>
                 </div>
               ) : filteredNewsItems.length === 0 ? (
-                <div className="p-6 flex flex-col items-center justify-center h-full">
+                <div className="p-6 flex flex-col items-center justify-center h-full animate-fadeIn">
                   <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-3">
                     <svg className="w-8 h-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -332,7 +446,7 @@ export default function NewsFeed() {
                   <div className="py-2" key={item.id}>
                     <button
                       onClick={() => setSelectedNewsItem(item.id)}
-                      className={`w-full text-left p-3 hover:bg-slate-50 transition-all duration-200 rounded-xl ${
+                      className={`w-full text-left p-3 hover:bg-slate-50 transition-all duration-300 rounded-xl card-hover-effect ${
                         selectedNewsItem === item.id 
                           ? "bg-slate-50 ring-1 ring-slate-200/70 shadow-sm" 
                           : "bg-white hover:shadow-sm"
@@ -342,9 +456,11 @@ export default function NewsFeed() {
                         {/* Source with logo */}
                         <div className="flex items-center">
                           <div className="h-4 w-4 mr-1.5 relative">
-                            <img 
+                            <Image 
                               src={getSourceLogo(item.source)} 
                               alt={item.source}
+                              width={16}
+                              height={16}
                               className="h-full w-full object-contain"
                             />
                           </div>
@@ -415,9 +531,11 @@ export default function NewsFeed() {
                           {/* Source with logo */}
                           <div className="flex items-center space-x-2">
                             <div className="h-5 w-5 relative">
-                              <img 
+                              <Image 
                                 src={getSourceLogo(selectedNews.source)} 
                                 alt={selectedNews.source}
+                                width={20}
+                                height={20}
                                 className="h-full w-full object-contain"
                               />
                             </div>
@@ -462,9 +580,11 @@ export default function NewsFeed() {
                           <div className="flex space-x-2">
                             {selectedNews.socialSources.map((platform, idx) => (
                               <div key={idx} className="h-6 w-6 relative">
-                                <img 
+                                <Image 
                                   src={getSourceLogo(platform)} 
                                   alt={platform}
+                                  width={24}
+                                  height={24}
                                   className="h-full w-full object-contain"
                                   title={platform}
                                 />
@@ -510,10 +630,12 @@ export default function NewsFeed() {
                     {/* Display article image */}
                     {selectedNews.imageUrl && (
                       <div className="mb-9 -mx-8">
-                        <img
+                        <Image
                           src={selectedNews.imageUrl}
                           alt={selectedNews.title}
                           className="w-full h-[320px] object-cover rounded-lg shadow-sm"
+                          width={1280}
+                          height={720}
                         />
                       </div>
                     )}
@@ -529,151 +651,146 @@ export default function NewsFeed() {
                     
                     {/* Trading Recommendations Section */}
                     {selectedNews.tradeRecommendations && selectedNews.tradeRecommendations.length > 0 && (
-                      <div className="mt-10 pt-6 border-t border-slate-100">
-                        <h3 className="font-medium text-slate-900 mb-4">Trading Recommendations</h3>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          {selectedNews.tradeRecommendations.map((rec, idx) => (
-                            <div key={idx} className={`rounded-lg p-4 ${
-                              rec.direction === 'buy' ? 'bg-green-50 border border-green-100' : 'bg-red-50 border border-red-100'
-                            }`}>
-                              <div className="flex items-center justify-between mb-2">
-                                <div className="flex items-center">
-                                  <span className={`text-lg font-medium ${
-                                    rec.direction === 'buy' ? 'text-green-700' : 'text-red-700'
-                                  }`}>{rec.symbol}</span>
-                                  <span className={`ml-2 px-2 py-0.5 rounded text-xs font-medium ${
-                                    rec.direction === 'buy' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                                  }`}>
-                                    {rec.direction.toUpperCase()}
-                                  </span>
-                                </div>
-                                <span className={`text-xl font-bold ${
-                                  rec.direction === 'buy' ? 'text-green-600' : 'text-red-600'
+                      <div className="mt-8 border-t border-gray-100 pt-8">
+                        <h4 className="text-lg font-semibold mb-4 text-gray-900">Trading Insights</h4>
+                        <p className="mb-5 text-gray-700">{selectedNews.tradingInsights}</p>
+                        
+                        <div className="bg-gray-50 p-4 rounded-lg">
+                          <h5 className="text-sm font-semibold mb-3 text-gray-900">Recommendations</h5>
+                          <div className="space-y-3">
+                            {selectedNews.tradeRecommendations.map((rec, idx) => (
+                              <div key={idx} className="flex items-center space-x-3">
+                                <div className={`flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full ${
+                                  rec.direction === 'buy' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
                                 }`}>
-                                  {rec.direction === 'buy' ? '↑' : '↓'}
-                                </span>
-                              </div>
-                              <p className="text-sm text-slate-700">{rec.rationale}</p>
-                              {rec.targetPrice && (
-                                <div className="mt-2 text-sm">
-                                  <span className="text-slate-600">Target: </span>
-                                  <span className="font-medium">{rec.targetPrice}</span>
+                                  {rec.direction === 'buy' ? (
+                                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                      <path d="M16 10L12 6L8 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                      <path d="M12 6V18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                    </svg>
+                                  ) : (
+                                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                      <path d="M8 14L12 18L16 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                      <path d="M12 18V6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                    </svg>
+                                  )}
                                 </div>
-                              )}
-                            </div>
+                                <div>
+                                  <div className="flex items-center">
+                                    <span className="font-medium text-gray-900">{rec.symbol}</span>
+                                    <span className="ml-2 text-xs text-gray-500">{rec.targetPrice}</span>
+                                  </div>
+                                  <p className="text-xs text-gray-600">{rec.rationale}</p>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Original Sources with Links */}
+                    {selectedNews?.sourceLinks && selectedNews.sourceLinks.length > 0 && (
+                      <div className="mt-8 border-t border-gray-100 pt-6">
+                        <h4 className="text-lg font-semibold mb-4 text-gray-900">Original Sources</h4>
+                        <div className="space-y-3">
+                          {selectedNews.sourceLinks.map((sourceLink: any, idx: number) => (
+                            <a 
+                              key={idx}
+                              href={sourceLink.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-300 button-hover-effect"
+                            >
+                              <div className="h-8 w-8 relative mr-3">
+                                <Image 
+                                  src={getSourceLogo(sourceLink.source)}
+                                  alt={sourceLink.source}
+                                  width={32}
+                                  height={32}
+                                  className="h-full w-full object-contain"
+                                />
+                              </div>
+                              <div className="flex-1">
+                                <p className="text-sm font-medium text-gray-900">{sourceLink.source}</p>
+                                <p className="text-xs text-gray-500">Published: {sourceLink.date || "N/A"}</p>
+                              </div>
+                              <svg className="w-5 h-5 text-gray-400" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M10 6H6C4.89543 6 4 6.89543 4 8V18C4 19.1046 4.89543 20 6 20H16C17.1046 20 18 19.1046 18 18V14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                <path d="M14 4H20V10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                <path d="M20 4L10 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                            </a>
                           ))}
                         </div>
                       </div>
                     )}
                     
-                    {/* AI Analysis Section */}
-                    <div className="mt-10 pt-6 border-t border-slate-100">
-                      <h3 className="font-medium text-slate-900 mb-3">AI Analysis</h3>
-                      <div className="bg-slate-50 rounded-xl p-5 ring-1 ring-slate-100">
-                        <div className="mb-4">
-                          <div className="flex items-center mb-2">
-                            <svg className="w-5 h-5 mr-2 text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    {/* IPFS Verification */}
+                    {selectedNews.ipfsHash && (
+                      <div className="mt-8 border-t border-gray-100 pt-6">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center">
+                            <svg className="w-5 h-5 text-indigo-500 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                              <path d="M15 9L9 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                              <path d="M9 9L15 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                             </svg>
-                            <h4 className="font-medium text-slate-900">Summary</h4>
+                            <span className="text-sm font-medium text-gray-700">Verified on IPFS</span>
                           </div>
-                          <p className="text-slate-700 text-sm">{selectedNews.aiSummary}</p>
-                        </div>
-                        <div>
-                          <div className="flex items-center mb-2">
-                            <svg className="w-5 h-5 mr-2 text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                          <a 
+                            href={`https://ipfs.io/ipfs/${selectedNews.ipfsHash}`} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-sm text-indigo-600 hover:text-indigo-800 flex items-center button-hover-effect"
+                          >
+                            View on IPFS
+                            <svg className="w-4 h-4 ml-1 transition-transform duration-300 group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M10 6H6C4.89543 6 4 6.89543 4 8V18C4 19.1046 4.89543 20 6 20H16C17.1046 20 18 19.1046 18 18V14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                              <path d="M14 4H20V10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                              <path d="M20 4L10 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                             </svg>
-                            <h4 className="font-medium text-slate-900">Trading Insights</h4>
-                          </div>
-                          <p className="text-slate-700 text-sm">{selectedNews.tradingInsights}</p>
+                          </a>
                         </div>
                       </div>
-                    </div>
+                    )}
                     
-                    {/* Verification Details Section */}
-                    <div className="mt-10 pt-6 border-t border-slate-100">
-                      <h3 className="font-medium text-slate-900 mb-3">Verification Details</h3>
-                      <div className="bg-slate-50 rounded-xl p-5 ring-1 ring-slate-100">
-                        <div className="grid grid-cols-2 gap-5">
-                          <div>
-                            <p className="text-xs text-slate-500 mb-1">Verified by</p>
-                            <p className="text-sm font-medium text-slate-900">TrueLens Analytics</p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-slate-500 mb-1">Verification Date</p>
-                            <p className="text-sm font-medium text-slate-900">Today, 9:45 AM</p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-slate-500 mb-1">Accuracy Score</p>
-                            <p className="text-sm font-medium text-slate-900">{selectedNews.confidence}%</p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-slate-500 mb-1">Sources</p>
-                            <p className="text-sm font-medium text-slate-900">3 sources</p>
-                          </div>
+                    {/* Flag Button - New Addition */}
+                    <div className="mt-8 border-t border-gray-100 pt-6">
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center text-sm text-gray-500">
+                          <svg className="w-4 h-4 mr-1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 7V12L15 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+                          </svg>
+                          Last verified: 2 hours ago
                         </div>
                         
-                        {/* IPFS Verification Link */}
-                        <div className="mt-5 pt-5 border-t border-slate-200">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center">
-                              <svg className="w-5 h-5 mr-2 text-slate-700" viewBox="0 0 80 80" fill="currentColor">
-                                <path d="M40 10L13.5 25v30L40 70l26.5-15V25L40 10zm-.95 10.83l18.38 10.82-6.31 3.71-12.07-7.08v-.01l-12.03 7.04-6.3-3.7 18.33-10.78zm-19.25 28.35l-5.66-3.32V29.68l5.66 3.33v16.17zm6.24 3.67l12.07 7.09 12.07-7.09V34.15l-12.07 7.08-12.07-7.08v18.7zm25.6-3.67V33.01l5.66-3.33v16.18l-5.66 3.32z"/>
-                              </svg>
-                              <div>
-                                <p className="text-sm font-medium text-slate-900">Content verified on IPFS</p>
-                                <p className="text-xs text-slate-500">Immutable, decentralized verification</p>
-                              </div>
-                            </div>
-                            <a 
-                              href={`https://ipfs.io/ipfs/${selectedNews.ipfsHash || 'QmXZ4YEWQfKRKvDYYBNqFtfFhUazdJPEzuzh6BDFnj4xJr'}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md text-slate-700 bg-white border border-slate-200 hover:bg-slate-50"
-                            >
-                              View on IPFS
-                              <svg className="w-3.5 h-3.5 ml-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                              </svg>
-                            </a>
-                          </div>
-                        </div>
+                        <button 
+                          onClick={() => handleFlagNews(selectedNews.id)}
+                          className="flex items-center text-sm px-3 py-1.5 border border-red-300 text-red-600 rounded-md hover:bg-red-50 transition-colors"
+                        >
+                          <svg className="w-4 h-4 mr-1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M3 21L3 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M20 4L8 4C6.97631 4 6.93117 4.97631 6 6C5.06883 7.02369 5.02369 7.02369 4 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M6 7L21 7L17 13L21 19L6 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                          Flag as Fake News
+                        </button>
                       </div>
-                    </div>
-                    
-                    {/* Action Buttons */}
-                    <div className="mt-8 flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
-                      <button
-                        className="inline-flex items-center justify-center px-5 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-slate-900 hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-900 transition-colors duration-200"
-                      >
-                        Read Full Analysis
-                      </button>
-                      <button
-                        className="inline-flex items-center justify-center px-5 py-2.5 border border-slate-300 shadow-sm text-sm font-medium rounded-lg text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-900 transition-colors duration-200"
-                      >
-                        View Source
-                      </button>
                     </div>
                   </div>
                 )}
               </div>
             ) : (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="h-full flex items-center justify-center"
-              >
-                <div className="text-center p-10">
-                  <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-slate-100 flex items-center justify-center">
-                    <svg className="w-12 h-12 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v10m2 2v-6m2 6V9a2 2 0 00-2-2H9a2 2 0 00-2 2v10a2 2 0 002 2h9a2 2 0 002-2zm-9-9h4m-4 3h2" />
-                    </svg>
-                  </div>
-                  <h3 className="text-xl font-medium text-slate-900 mb-2">Select a news article</h3>
-                  <p className="text-slate-500 max-w-md mx-auto">Choose an article from the list to view its content and analysis</p>
+              <div className="flex items-center justify-center h-full">
+                <div className="text-center p-12">
+                  <svg className="w-16 h-16 text-gray-300 mx-auto mb-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8 6H16M8 10H16M8 14H11M6 22H18C19.1046 22 20 21.1046 20 20V4C20 2.89543 19.1046 2 18 2H6C4.89543 2 4 2.89543 4 4V20C4 21.1046 4.89543 22 6 22Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <h3 className="text-xl font-medium text-gray-400">Select a news item to view details</h3>
                 </div>
-              </motion.div>
+              </div>
             )}
           </div>
         </div>
@@ -686,6 +803,59 @@ export default function NewsFeed() {
           </div>
         </div>
       </div>
+      
+      {/* Flag Dialog - Fixed implementation without nested style jsx */}
+      {showFlagDialog && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
+          <div 
+            className="relative mx-auto p-8 bg-white w-full max-w-md rounded-xl shadow-2xl transform transition-all"
+            style={{
+              animation: 'dialogAppear 0.3s ease-out forwards'
+            }}
+          >
+            <div className="flex items-center justify-center w-12 h-12 rounded-full bg-red-100 text-red-600 mb-6 mx-auto">
+              <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3 21L3 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M20 4L8 4C6.97631 4 6.93117 4.97631 6 6C5.06883 7.02369 5.02369 7.02369 4 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M6 7L21 7L17 13L21 19L6 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+            
+            <h3 className="text-2xl font-bold text-center text-gray-900 mb-4">Flag as Fake News</h3>
+            
+            <p className="text-gray-600 mb-6 text-center">
+              You're about to flag this news item as potentially fake or misleading. 
+              If 10%+ of viewers flag this content, it will be removed from the news feed and verified again.
+            </p>
+            
+            <div className="bg-gray-50 p-4 rounded-lg mb-6">
+              <div className="flex items-start">
+                <svg className="w-5 h-5 text-amber-500 mr-2 mt-0.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 9V12M12 15H12.01M5.07183 19H18.9282C20.4678 19 21.4301 17.3333 20.6603 16L13.7321 4C12.9623 2.66667 11.0378 2.66667 10.268 4L3.33978 16C2.56998 17.3333 3.53223 19 5.07183 19Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <p className="text-sm text-gray-600">
+                  This helps maintain the integrity of our platform. Thank you for contributing to our verification process.
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex justify-end space-x-3">
+              <button 
+                onClick={() => setShowFlagDialog(false)}
+                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={submitFlag}
+                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+              >
+                Confirm Flag
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 } 

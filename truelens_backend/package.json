@@ -1,0 +1,25 @@
+{
+  "name": "truelens-backend",
+  "version": "1.0.0",
+  "description": "TrueLens backend with SAGA, Rootstock, and Hyperlane integration",
+  "main": "index.js",
+  "scripts": {
+    "deploy:saga": "npx hardhat run scripts/deploy-saga.js --network saga",
+    "deploy:rootstock": "npx hardhat run scripts/deploy-rootstock.js --network rootstock",
+    "deploy:hyperlane": "hyperlane deploy core --targets saga,rootstock --chains ./hyperlane/config/chains.yaml --ism ./hyperlane/config/ism.yaml",
+    "deploy:warp": "hyperlane deploy warp --config ./hyperlane/config/warp-route-deployment.yaml"
+  },
+  "dependencies": {
+    "@hyperlane-xyz/core": "^1.4.0",
+    "@hyperlane-xyz/sdk": "^1.4.0",
+    "@hyperlane-xyz/cli": "^3.10.0",
+    "@openzeppelin/contracts": "^4.9.3",
+    "hardhat": "^2.17.3",
+    "ethers": "^5.7.2",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^2.0.2",
+    "hardhat-deploy": "^0.11.36"
+  }
+} 
