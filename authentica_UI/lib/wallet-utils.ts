@@ -35,7 +35,7 @@ declare global {
 }
 
 // Get the MetaMask provider specifically
-const getMetaMaskProvider = (): EthereumProvider | null => {
+export const getMetaMaskProvider = (): EthereumProvider | null => {
   // Case 1: When MetaMask is the only provider (standard)
   if (typeof window !== 'undefined' && 
       window.ethereum && 
