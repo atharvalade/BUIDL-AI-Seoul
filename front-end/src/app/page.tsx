@@ -16,11 +16,11 @@ export default function Home() {
           transition={{ duration: 0.8 }}
           className="text-center max-w-4xl px-4 sm:px-6 lg:px-8"
         >
-          <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-foreground mb-6">
+          <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-black dark:text-white mb-6">
             <span className="block">Cut Through the Noise.</span>
-            <span className="block text-primary">Get Verified News.</span>
+            <span className="block text-black dark:text-white">Get Verified News.</span>
           </h1>
-          <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+          <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto">
             TrueLens aggregates, verifies, and analyzes news that impacts the financial markets, giving you clarity when you need it most.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
@@ -48,13 +48,13 @@ export default function Home() {
               className="w-full"
               priority
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-background to-transparent opacity-30"></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-white dark:from-black to-transparent opacity-30"></div>
           </div>
         </motion.div>
       </section>
 
       {/* Value Proposition Section */}
-      <section className="py-20 bg-muted/30">
+      <section className="py-20 bg-gray-50 dark:bg-gray-900">
         <div className="container px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl mx-auto text-center mb-16">
             <motion.h2
@@ -71,7 +71,7 @@ export default function Home() {
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.1 }}
-              className="text-muted-foreground text-lg"
+              className="text-gray-600 dark:text-gray-300 text-lg"
             >
               In a world of information overload, we provide clarity and accuracy.
             </motion.p>
@@ -101,15 +101,15 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="bg-card rounded-xl p-6 shadow-sm border"
+                className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border"
               >
-                <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="h-12 w-12 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center mb-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-black dark:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
                 <h3 className="text-xl font-medium mb-2">{feature.title}</h3>
-                <p className="text-muted-foreground">{feature.description}</p>
+                <p className="text-gray-600 dark:text-gray-300">{feature.description}</p>
               </motion.div>
             ))}
           </div>
@@ -134,14 +134,14 @@ export default function Home() {
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.1 }}
-              className="text-muted-foreground text-lg"
+              className="text-gray-600 dark:text-gray-300 text-lg"
             >
               Our advanced platform combines AI and community verification.
             </motion.p>
           </div>
 
           <div className="relative">
-            <div className="absolute left-1/2 -translate-x-1/2 h-full w-1 bg-muted hidden md:block"></div>
+            <div className="absolute left-1/2 -translate-x-1/2 h-full w-1 bg-gray-200 dark:bg-gray-700 hidden md:block"></div>
             
             {[
               {
@@ -173,12 +173,12 @@ export default function Home() {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 className={`relative mb-12 md:w-1/2 ${step.align === "left" ? "md:mr-auto md:pr-12" : "md:ml-auto md:pl-12"}`}
               >
-                <div className="hidden md:block absolute top-3 bg-background border rounded-full h-8 w-8 flex items-center justify-center text-sm font-bold z-10">
+                <div className="hidden md:block absolute top-3 bg-white dark:bg-black border rounded-full h-8 w-8 flex items-center justify-center text-sm font-bold z-10">
                   {index + 1}
                 </div>
-                <div className="bg-card rounded-xl p-6 shadow-sm border relative z-0">
+                <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border relative z-0">
                   <h3 className="text-xl font-medium mb-2">{step.title}</h3>
-                  <p className="text-muted-foreground">{step.description}</p>
+                  <p className="text-gray-600 dark:text-gray-300">{step.description}</p>
                 </div>
               </motion.div>
             ))}
@@ -187,7 +187,7 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-primary">
+      <section className="py-20 bg-black">
         <div className="container px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto text-center">
             <motion.h2
@@ -195,7 +195,7 @@ export default function Home() {
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
-              className="text-3xl md:text-4xl font-bold mb-6 text-primary-foreground"
+              className="text-3xl md:text-4xl font-bold mb-6 text-white"
             >
               Ready to Experience Verified News?
             </motion.h2>
@@ -204,7 +204,7 @@ export default function Home() {
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.1 }}
-              className="text-primary-foreground/90 text-lg mb-8"
+              className="text-white/90 text-lg mb-8"
             >
               Join TrueLens today and transform how you consume financial news.
             </motion.p>
@@ -217,7 +217,7 @@ export default function Home() {
               <Button
                 href="/feed"
                 size="lg"
-                className="bg-white text-primary hover:bg-white/90"
+                className="bg-white text-black hover:bg-white/90"
               >
                 Browse the Feed
               </Button>

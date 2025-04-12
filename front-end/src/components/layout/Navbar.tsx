@@ -57,7 +57,7 @@ export function Navbar() {
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="font-semibold text-xl text-foreground"
+            className="font-semibold text-xl text-black dark:text-white"
           >
             TrueLens
           </motion.span>
@@ -74,17 +74,17 @@ export function Navbar() {
               <Link
                 href={link.href}
                 className={cn(
-                  "relative text-sm font-medium transition-colors hover:text-primary py-2",
+                  "relative text-sm font-medium transition-colors hover:text-black dark:hover:text-white py-2",
                   pathname === link.href 
-                    ? "text-primary" 
-                    : "text-muted-foreground hover:text-foreground"
+                    ? "text-black dark:text-white" 
+                    : "text-gray-500 dark:text-gray-400"
                 )}
               >
                 {link.name}
                 {pathname === link.href && (
                   <motion.span
                     layoutId="navbar-active"
-                    className="absolute bottom-0 left-0 h-[2px] w-full bg-primary"
+                    className="absolute bottom-0 left-0 h-[2px] w-full bg-black dark:bg-white"
                   />
                 )}
               </Link>

@@ -74,10 +74,10 @@ export default function FeedPage() {
     <div className="flex flex-col min-h-screen pt-16">
       <div className="flex flex-col md:flex-row flex-1">
         {/* News List (Left Side) */}
-        <div className="w-full md:w-2/5 lg:w-1/3 border-r bg-muted/10 overflow-y-auto h-[calc(100vh-4rem)]">
+        <div className="w-full md:w-2/5 lg:w-1/3 border-r bg-gray-50 dark:bg-gray-900 overflow-y-auto h-[calc(100vh-4rem)]">
           <div className="p-4 border-b">
             <h2 className="text-xl font-semibold">Latest Verified News</h2>
-            <p className="text-muted-foreground text-sm">Stay informed with trusted sources</p>
+            <p className="text-gray-500 dark:text-gray-400 text-sm">Stay informed with trusted sources</p>
           </div>
           
           <div className="divide-y">
@@ -88,8 +88,8 @@ export default function FeedPage() {
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.3, delay: index * 0.1 }}
                 className={cn(
-                  "p-4 cursor-pointer hover:bg-muted/20 transition-colors",
-                  selectedNewsIndex === index && "bg-muted/30"
+                  "p-4 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors",
+                  selectedNewsIndex === index && "bg-gray-100 dark:bg-gray-800"
                 )}
                 onClick={() => setSelectedNewsIndex(index)}
               >
@@ -105,9 +105,9 @@ export default function FeedPage() {
                   
                   <div className="flex-1 space-y-1">
                     <h3 className="font-medium line-clamp-2">{news.title}</h3>
-                    <p className="text-sm text-muted-foreground line-clamp-1">{truncateText(news.description, 70)}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-1">{truncateText(news.description, 70)}</p>
                     <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">{news.source}</span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">{news.source}</span>
                       <div className="flex items-center gap-1">
                         {news.verified && (
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -137,7 +137,7 @@ export default function FeedPage() {
               <h1 className="text-2xl md:text-3xl font-bold mb-4">{selectedNews.title}</h1>
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">{selectedNews.source}</span>
+                  <span className="text-sm text-gray-500 dark:text-gray-400">{selectedNews.source}</span>
                   {selectedNews.verified && (
                     <div className="flex items-center gap-1 px-2 py-0.5 bg-green-50 text-green-700 rounded-full text-xs">
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -147,7 +147,7 @@ export default function FeedPage() {
                     </div>
                   )}
                 </div>
-                <span className="text-sm text-muted-foreground">{formatDate(selectedNews.date)}</span>
+                <span className="text-sm text-gray-500 dark:text-gray-400">{formatDate(selectedNews.date)}</span>
               </div>
               
               <div className="relative h-48 sm:h-64 md:h-80 w-full mb-6 rounded-lg overflow-hidden">
@@ -166,9 +166,9 @@ export default function FeedPage() {
             </div>
             
             <div className="space-y-6">
-              <div className="p-4 rounded-lg bg-muted/30 border">
+              <div className="p-4 rounded-lg bg-gray-50 dark:bg-gray-800 border">
                 <div className="flex items-center gap-2 mb-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-900 dark:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
                   <h3 className="font-semibold">AI Summary</h3>
@@ -186,9 +186,9 @@ export default function FeedPage() {
                 <p className="text-sm text-blue-700">{selectedNews.tradingImplications}</p>
               </div>
               
-              <div className="p-4 rounded-lg bg-muted/30 border">
+              <div className="p-4 rounded-lg bg-gray-50 dark:bg-gray-800 border">
                 <div className="flex items-center gap-2 mb-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-900 dark:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                   </svg>
                   <h3 className="font-semibold">Verified Sources</h3>
@@ -197,7 +197,7 @@ export default function FeedPage() {
                   {selectedNews.source.split(', ').map((source, index) => (
                     <span 
                       key={index} 
-                      className="px-2 py-1 bg-card text-xs rounded-md border"
+                      className="px-2 py-1 bg-white dark:bg-gray-700 text-xs rounded-md border"
                     >
                       {source}
                     </span>
