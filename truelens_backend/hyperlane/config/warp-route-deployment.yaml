@@ -1,7 +1,7 @@
 base:
   chainName: saga
   type: collateral
-  address: "0x1234567890123456789012345678901234567890" # TRUE token address on SAGA
+  address: "${SAGA_TRUE_TOKEN}" # TRUE token address on SAGA - will be filled after deployment
   isNft: false
 synthetics:
   - chainName: rootstock

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import { connectWallet, stakeTrueTokens, signVerificationOnRootstock, isWalletConnected } from "@/lib/wallet-utils";
 
 // Mock data
 const USER_DATA = {
@@ -94,6 +95,22 @@ export default function ProfilePage() {
   // Add state for the news detail dialog
   const [showNewsDetailDialog, setShowNewsDetailDialog] = useState(false);
   const [selectedVerificationItem, setSelectedVerificationItem] = useState<any>(null);
+  
+  // Add state for cross-chain interactions
+  const [processingStake, setProcessingStake] = useState(false);
+  const [txHash, setTxHash] = useState<string | null>(null);
+  const [verificationStep, setVerificationStep] = useState<'initial' | 'staking' | 'verifying' | 'complete'>('initial');
+  const [walletConnected, setWalletConnected] = useState(false);
+  
+  // Check if wallet is connected
+  useEffect(() => {
+    const checkWallet = async () => {
+      const connected = await isWalletConnected();
+      setWalletConnected(connected);
+    };
+    
+    checkWallet();
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -172,17 +189,73 @@ export default function ProfilePage() {
     setPendingNewsItem(item);
     setVerificationChoice(choice);
     setShowVerificationDialog(true);
+    setVerificationStep('initial');
+    setTxHash(null);
   };
 
-  const handleVerificationConfirm = () => {
-    // In a real app, this would call a contract to stake tokens and register verification
-    setShowVerificationDialog(false);
-    setShowVerifySuccess(true);
+  const handleVerificationConfirm = async () => {
+    if (!pendingNewsItem || !verificationChoice) return;
     
-    // Auto-hide success message after 3 seconds
-    setTimeout(() => {
-      setShowVerifySuccess(false);
-    }, 3000);
+    setProcessingStake(true);
+    setVerificationStep('staking');
+    
+    try {
+      // First, ensure wallet is connected
+      if (!walletConnected) {
+        const account = await connectWallet();
+        setWalletConnected(!!account);
+        if (!account) {
+          setProcessingStake(false);
+          return;
+        }
+      }
+      
+      // Step 1: Stake TRUE tokens on SAGA chainlet
+      const stakeResult = await stakeTrueTokens(10);
+      if (!stakeResult.success) {
+        setProcessingStake(false);
+        return;
+      }
+      
+      // Save the transaction hash
+      setTxHash(stakeResult.hash || null);
+      
+      // Find the complete news item details based on pendingNewsItem id
+      const newsItemDetails = pendingVerifications.find(item => item.id === pendingNewsItem.id);
+      
+      // Step 2: Sign verification data on Rootstock
+      setVerificationStep('verifying');
+      const signResult = await signVerificationOnRootstock(
+        pendingNewsItem.id, 
+        verificationChoice,
+        {
+          title: pendingNewsItem.title,
+          source: newsItemDetails?.source || "Unknown Source",
+          date: newsItemDetails?.date || new Date().toISOString(),
+          summary: newsItemDetails?.summary || undefined,
+          ipfsHash: newsItemDetails?.cid || undefined
+        }
+      );
+      
+      if (!signResult.success) {
+        setProcessingStake(false);
+        return;
+      }
+      
+      // Complete the process
+      setVerificationStep('complete');
+      setProcessingStake(false);
+      setShowVerificationDialog(false);
+      setShowVerifySuccess(true);
+      
+      // Auto-hide success message after 3 seconds
+      setTimeout(() => {
+        setShowVerifySuccess(false);
+      }, 3000);
+    } catch (error) {
+      console.error("Error during verification process:", error);
+      setProcessingStake(false);
+    }
   };
 
   // Function to handle opening news detail dialog
@@ -1022,8 +1095,9 @@ export default function ProfilePage() {
                   {verificationChoice === 'verify' ? 'Verify News Content' : 'Flag as Fake News'}
                 </h3>
                 <button 
-                  onClick={() => setShowVerificationDialog(false)}
-                  className="text-white hover:text-gray-200 focus:outline-none"
+                  onClick={() => !processingStake && setShowVerificationDialog(false)}
+                  className={`text-white hover:text-gray-200 focus:outline-none ${processingStake ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  disabled={processingStake}
                 >
                   <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -1037,65 +1111,115 @@ export default function ProfilePage() {
                 <h4 className="text-lg font-semibold text-gray-900 mb-2">
                   {pendingNewsItem?.title}
                 </h4>
-                <p className="text-gray-600 text-sm mb-4">
-                  You are about to {verificationChoice === 'verify' ? 'verify' : 'flag'} this news item.
-                </p>
                 
-                <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
-                  <div className="flex items-start">
-                    <svg className="w-5 h-5 text-amber-500 mt-0.5 mr-3 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                    </svg>
-                    <div>
-                      <p className="text-sm text-gray-700 font-medium mb-1">Staking Required</p>
-                      <p className="text-sm text-gray-600">
-                        To participate in the verification process, you need to stake 10 TRUE tokens. These tokens will be:
+                {verificationStep === 'initial' && (
+                  <>
+                    <p className="text-gray-600 text-sm mb-4">
+                      You are about to {verificationChoice === 'verify' ? 'verify' : 'flag'} this news item.
+                    </p>
+                    
+                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
+                      <div className="flex items-start">
+                        <svg className="w-5 h-5 text-amber-500 mt-0.5 mr-3 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                        </svg>
+                        <div>
+                          <p className="text-sm text-gray-700 font-medium mb-1">Staking Required</p>
+                          <p className="text-sm text-gray-600">
+                            To participate in the verification process, you need to stake 10 TRUE tokens. These tokens will be:
+                          </p>
+                          <ul className="mt-2 space-y-1 text-sm text-gray-600 list-disc list-inside">
+                            <li>Added to the verification pool for this news item</li>
+                            <li>Returned with rewards if your verification matches the consensus</li>
+                            <li>Lost if your verification is incorrect (against 90%+ consensus)</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg mb-6">
+                      <div>
+                        <span className="block text-sm text-gray-500">Current Balance</span>
+                        <span className="block text-xl font-semibold text-gray-900">{USER_DATA.tokens} TRUE</span>
+                      </div>
+                      <div>
+                        <span className="block text-sm text-gray-500">Staking Amount</span>
+                        <span className="block text-xl font-semibold text-indigo-600">10 TRUE</span>
+                      </div>
+                    </div>
+                  </>
+                )}
+                
+                {(verificationStep === 'staking' || verificationStep === 'verifying') && (
+                  <div className="bg-blue-50 border border-blue-100 rounded-lg p-6 my-6">
+                    <div className="flex flex-col items-center text-center">
+                      <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-600 mb-4"></div>
+                      <h4 className="text-lg font-medium text-gray-900 mb-2">
+                        {verificationStep === 'staking' 
+                          ? "Processing Stake Transaction..." 
+                          : "Signing Verification on Rootstock..."}
+                      </h4>
+                      <p className="text-sm text-gray-600 mb-4">
+                        {verificationStep === 'staking' 
+                          ? "Please confirm the transaction in your wallet to stake 10 TRUE tokens on the SAGA chainlet." 
+                          : "Please sign the verification message in your wallet on the Rootstock network."}
                       </p>
-                      <ul className="mt-2 space-y-1 text-sm text-gray-600 list-disc list-inside">
-                        <li>Added to the verification pool for this news item</li>
-                        <li>Returned with rewards if your verification matches the consensus</li>
-                        <li>Lost if your verification is incorrect (against 90%+ consensus)</li>
-                      </ul>
+                      
+                      {txHash && (
+                        <div className="w-full mt-2 p-2 bg-gray-100 rounded overflow-auto text-xs text-gray-700 font-mono break-all">
+                          Transaction Hash: {txHash}
+                        </div>
+                      )}
+                      
+                      {verificationStep === 'staking' ? (
+                        <div className="mt-4 flex flex-col w-full">
+                          <p className="text-xs text-gray-500 mb-1">Step 1/2: Staking on SAGA chainlet</p>
+                          <div className="w-full bg-gray-200 rounded-full h-1.5">
+                            <div className="bg-blue-600 h-1.5 rounded-full w-1/2"></div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="mt-4 flex flex-col w-full">
+                          <p className="text-xs text-gray-500 mb-1">Step 2/2: Verifying on Rootstock</p>
+                          <div className="w-full bg-gray-200 rounded-full h-1.5">
+                            <div className="bg-blue-600 h-1.5 rounded-full w-full"></div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
-                </div>
-                
-                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg mb-6">
-                  <div>
-                    <span className="block text-sm text-gray-500">Current Balance</span>
-                    <span className="block text-xl font-semibold text-gray-900">{USER_DATA.tokens} TRUE</span>
-                  </div>
-                  <div>
-                    <span className="block text-sm text-gray-500">Staking Amount</span>
-                    <span className="block text-xl font-semibold text-indigo-600">10 TRUE</span>
-                  </div>
-                </div>
+                )}
               </div>
               
               <div className="flex justify-end gap-3">
                 <button
-                  onClick={() => setShowVerificationDialog(false)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                  onClick={() => !processingStake && setShowVerificationDialog(false)}
+                  className={`px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors ${
+                    processingStake ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
+                  disabled={processingStake}
                 >
                   Cancel
                 </button>
-                <button
-                  onClick={handleVerificationConfirm}
-                  className={`px-4 py-2 rounded-lg text-white transition-colors ${
-                    verificationChoice === 'verify' 
-                      ? 'bg-green-600 hover:bg-green-700' 
-                      : 'bg-red-600 hover:bg-red-700'
-                  }`}
-                >
-                  Confirm & Stake 10 TRUE
-                </button>
+                {verificationStep === 'initial' && (
+                  <button
+                    onClick={handleVerificationConfirm}
+                    className={`px-4 py-2 rounded-lg text-white transition-colors ${
+                      verificationChoice === 'verify' 
+                        ? 'bg-green-600 hover:bg-green-700' 
+                        : 'bg-red-600 hover:bg-red-700'
+                    }`}
+                  >
+                    Confirm & Stake 10 TRUE
+                  </button>
+                )}
               </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* Success Message */}
+      {/* Success Message - Update with more details */}
       {showVerifySuccess && (
         <div className="fixed bottom-6 right-6 bg-green-600 text-white px-6 py-4 rounded-lg shadow-lg z-50 animate-fadeIn">
           <div className="flex items-center">
@@ -1103,8 +1227,8 @@ export default function ProfilePage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
             <div>
-              <p className="font-medium">Verification Submitted Successfully</p>
-              <p className="text-sm text-green-100">10 TRUE tokens staked to the verification pool</p>
+              <p className="font-medium">Cross-Chain Verification Complete</p>
+              <p className="text-sm text-green-100">10 TRUE tokens staked on SAGA chainlet and verified on Rootstock</p>
             </div>
           </div>
         </div>

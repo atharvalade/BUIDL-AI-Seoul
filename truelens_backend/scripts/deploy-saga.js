@@ -1,7 +1,15 @@
 const { ethers } = require("hardhat");
+const fs = require('fs');
+const path = require('path');
 
 async function main() {
   console.log("Deploying TrueLens contracts to SAGA chainlet...");
+
+  // Create logs directory if it doesn't exist
+  const logsDir = path.join(__dirname, '..', 'logs');
+  if (!fs.existsSync(logsDir)) {
+    fs.mkdirSync(logsDir);
+  }
 
   // Get the deployer account
   const [deployer] = await ethers.getSigners();
@@ -23,10 +31,18 @@ async function main() {
   console.log("SAGA contracts deployed successfully");
   
   // Save the deployed contract addresses
-  console.log("Contract addresses:", JSON.stringify({
+  const deploymentInfo = {
     trueToken: trueToken.address,
     verification: verification.address
-  }));
+  };
+  
+  console.log("Contract addresses:", JSON.stringify(deploymentInfo));
+  
+  // Save to file
+  fs.writeFileSync(
+    path.join(logsDir, 'saga-deployment.json'),
+    JSON.stringify(deploymentInfo, null, 2)
+  );
 }
 
 main()

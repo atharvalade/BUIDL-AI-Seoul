@@ -1,10 +1,10 @@
 saga:
   name: saga
-  chainId: 1712771388991266
+  chainId: 2744466489002000
   domainId: 33333
   protocol: ethereum
   rpcUrls:
-    - http: https://your-saga-chainlet-rpc-url
+    - http: https://truelens-2744466489002000-1.jsonrpc.sagarpc.io
   isTestnet: true
   nativeToken:
     name: TRUE

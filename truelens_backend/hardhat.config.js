@@ -3,7 +3,7 @@ require("hardhat-deploy");
 require("dotenv").config();
 
 const PRIVATE_KEY = process.env.PRIVATE_KEY || "0x0000000000000000000000000000000000000000000000000000000000000000";
-const SAGA_RPC_URL = process.env.SAGA_RPC_URL || "https://your-saga-chainlet-rpc-url";
+const SAGA_RPC_URL = process.env.SAGA_RPC_URL || "https://truelens-2744466489002000-1.jsonrpc.sagarpc.io";
 const ROOTSTOCK_RPC_URL = process.env.ROOTSTOCK_RPC_URL || "https://public-node.testnet.rsk.co";
 
 /** @type import('hardhat/config').HardhatUserConfig */
@@ -21,7 +21,7 @@ module.exports = {
     saga: {
       url: SAGA_RPC_URL,
       accounts: [PRIVATE_KEY],
-      chainId: parseInt(process.env.SAGA_CHAIN_ID || "1712771388991266")
+      chainId: parseInt(process.env.SAGA_CHAIN_ID || "2744466489002000")
     },
     rootstock: {
       url: ROOTSTOCK_RPC_URL,
