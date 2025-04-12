@@ -50,6 +50,9 @@ module.exports = {
           foreground: "hsl(var(--card-foreground))",
         },
       },
+      borderColor: {
+        DEFAULT: "hsl(var(--border))",
+      },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
@@ -87,9 +90,18 @@ module.exports = {
         "fade-in": "fade-in 1s ease-out",
         "fade-up": "fade-up 0.7s ease-out",
         "fade-down": "fade-down 0.7s ease-out",
-        float: "float 4s ease-in-out infinite",
+        "float": "float 4s ease-in-out infinite",
+      },
+      typography: {
+        DEFAULT: {
+          css: {
+            maxWidth: 'none',
+          },
+        },
       },
     },
   },
-  plugins: [],
+  plugins: [
+    require('@tailwindcss/typography'),
+  ],
 } 

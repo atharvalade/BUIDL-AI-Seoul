@@ -74,13 +74,13 @@ export default function FeedPage() {
     <div className="flex flex-col min-h-screen pt-16">
       <div className="flex flex-col md:flex-row flex-1">
         {/* News List (Left Side) */}
-        <div className="w-full md:w-2/5 lg:w-1/3 border-r border-border bg-muted/10 overflow-y-auto h-[calc(100vh-4rem)]">
-          <div className="p-4 border-b border-border">
+        <div className="w-full md:w-2/5 lg:w-1/3 border-r bg-muted/10 overflow-y-auto h-[calc(100vh-4rem)]">
+          <div className="p-4 border-b">
             <h2 className="text-xl font-semibold">Latest Verified News</h2>
             <p className="text-muted-foreground text-sm">Stay informed with trusted sources</p>
           </div>
           
-          <div className="divide-y divide-border">
+          <div className="divide-y">
             {mockNews.map((news, index) => (
               <motion.div
                 key={news.id}
@@ -164,7 +164,7 @@ export default function FeedPage() {
             </div>
             
             <div className="space-y-6">
-              <div className="p-4 rounded-lg bg-muted/30 border border-border">
+              <div className="p-4 rounded-lg bg-muted/30 border">
                 <div className="flex items-center gap-2 mb-2">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -184,7 +184,7 @@ export default function FeedPage() {
                 <p className="text-sm text-blue-700">{selectedNews.tradingImplications}</p>
               </div>
               
-              <div className="p-4 rounded-lg bg-muted/30 border border-border">
+              <div className="p-4 rounded-lg bg-muted/30 border">
                 <div className="flex items-center gap-2 mb-2">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
@@ -195,7 +195,7 @@ export default function FeedPage() {
                   {selectedNews.source.split(', ').map((source, index) => (
                     <span 
                       key={index} 
-                      className="px-2 py-1 bg-card text-xs rounded-md border border-border"
+                      className="px-2 py-1 bg-card text-xs rounded-md border"
                     >
                       {source}
                     </span>

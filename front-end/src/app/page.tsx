@@ -101,7 +101,7 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="bg-card rounded-xl p-6 shadow-sm border border-border"
+                className="bg-card rounded-xl p-6 shadow-sm border"
               >
                 <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -173,10 +173,10 @@ export default function Home() {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 className={`relative mb-12 md:w-1/2 ${step.align === "left" ? "md:mr-auto md:pr-12" : "md:ml-auto md:pl-12"}`}
               >
-                <div className="hidden md:block absolute top-3 bg-background border border-border rounded-full h-8 w-8 flex items-center justify-center text-sm font-bold z-10">
+                <div className="hidden md:block absolute top-3 bg-background border rounded-full h-8 w-8 flex items-center justify-center text-sm font-bold z-10">
                   {index + 1}
                 </div>
-                <div className="bg-card rounded-xl p-6 shadow-sm border border-border relative z-0">
+                <div className="bg-card rounded-xl p-6 shadow-sm border relative z-0">
                   <h3 className="text-xl font-medium mb-2">{step.title}</h3>
                   <p className="text-muted-foreground">{step.description}</p>
                 </div>
