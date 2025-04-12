@@ -18,15 +18,15 @@ export default function NavBar() {
         } z-30 transition-all duration-300`}
       >
         <div className="mx-5 flex h-16 w-full max-w-screen-xl items-center justify-between">
-          <Link href="/" className="flex items-center mt-1 relative">
-            <div className="relative w-[240px] h-[50px]">
-              <object 
-                data={`/TrueLens_Logo.svg?v=${new Date().getTime()}`}
-                type="image/svg+xml"
-                className="w-full h-full"
-                aria-label="TrueLens logo"
-              />
-            </div>
+          <Link href="/" className="flex items-center relative pt-2">
+            <Image
+              src="/NewTrueLens.svg"
+              alt="TrueLens logo"
+              width={240}
+              height={50}
+              className="w-[240px] h-[50px] mix-blend-multiply"
+              priority
+            />
           </Link>
           
           <div className="flex items-center space-x-4">

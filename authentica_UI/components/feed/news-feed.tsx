@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import NewsCard from "../marketplace/news-card";
 import Image from "next/image";
+import { signVerificationOnRootstock, getMetaMaskProvider, isWalletConnected, connectWallet } from "@/lib/wallet-utils";
 
 interface NewsItem {
   id: string;
@@ -81,8 +82,18 @@ export default function NewsFeed() {
   const [isLoading, setIsLoading] = useState(true);
   const [newsItems, setNewsItems] = useState<NewsItem[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [showFlagDialog, setShowFlagDialog] = useState(false);
-  const [flaggedItem, setFlaggedItem] = useState<string | null>(null);
+  const [notification, setNotification] = useState<{
+    show: boolean;
+    type: 'success' | 'error';
+    message: string;
+    txHash?: string;
+    gasFee?: string;
+    totalCost?: string;
+  }>({
+    show: false,
+    type: 'success',
+    message: ''
+  });
 
   // Fetch data from IPFS
   useEffect(() => {
@@ -189,19 +200,74 @@ export default function NewsFeed() {
   };
 
   // Function to handle flagging news
-  const handleFlagNews = (id: string) => {
-    setFlaggedItem(id);
-    setShowFlagDialog(true);
+  const handleFlagNews = async (id: string) => {
+    console.log("Flagging news with ID:", id);
+    
+    const newsToFlag = newsItems.find(item => item.id === id);
+    if (!newsToFlag) {
+      console.error("Could not find news item with ID:", id);
+      return;
+    }
+    
+    try {
+      // Use the simple approach - first check if wallet is connected
+      const connected = await isWalletConnected();
+      if (!connected) {
+        const account = await connectWallet();
+        if (!account) {
+          setNotification({
+            show: true,
+            type: 'error',
+            message: 'Please connect your MetaMask wallet to flag content.'
+          });
+          setTimeout(() => setNotification(prev => ({...prev, show: false})), 5000);
+          return;
+        }
+      }
+      
+      // Directly sign the message on Rootstock - this will trigger MetaMask
+      const signResult = await signVerificationOnRootstock(
+        parseInt(newsToFlag.id), 
+        'flag',
+        {
+          title: newsToFlag.title,
+          source: newsToFlag.source,
+          date: newsToFlag.date,
+          summary: newsToFlag.summary,
+          ipfsHash: newsToFlag.ipfsHash
+        }
+      );
+      
+      if (signResult.success) {
+        // Show success notification
+        setNotification({
+          show: true,
+          type: 'success',
+          message: `Thank you for flagging "${newsToFlag.title}" as potentially fake news. Your flag has been recorded on the Rootstock testnet.`,
+          txHash: signResult.hash,
+          gasFee: signResult.gasFee,
+          totalCost: signResult.totalCost
+        });
+        setTimeout(() => setNotification(prev => ({...prev, show: false})), 8000);
+      } else {
+        // Show error notification
+        setNotification({
+          show: true,
+          type: 'error',
+          message: 'There was an error flagging this content. Please try again.'
+        });
+        setTimeout(() => setNotification(prev => ({...prev, show: false})), 5000);
+      }
+    } catch (error) {
+      console.error("Error flagging news:", error);
+      setNotification({
+        show: true,
+        type: 'error',
+        message: 'An unexpected error occurred. Please try again later.'
+      });
+      setTimeout(() => setNotification(prev => ({...prev, show: false})), 5000);
+    }
   };
-
-  // Function to submit flag
-  const submitFlag = () => {
-    // In a real implementation, this would connect to backend
-    // For demo, just update UI
-    setShowFlagDialog(false);
-    // Show a toast or notification
-    alert("Thank you for flagging this content. Our verification team will review it.");
-  }
 
   // Framer Motion variants
   const containerVariants = {
@@ -752,33 +818,30 @@ export default function NewsFeed() {
                             </svg>
                           </a>
                         </div>
+                        
+                        {/* Flag as Fake News Button */}
+                        <div className="mt-6">
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault(); 
+                              e.stopPropagation();
+                              console.log("Flag button clicked for news ID:", selectedNews.id);
+                              handleFlagNews(selectedNews.id);
+                            }}
+                            className="w-full py-3 px-4 rounded-lg bg-gradient-to-r from-red-500 to-red-600 text-white font-medium flex items-center justify-center shadow-sm hover:shadow-md transition-all duration-300 button-hover-effect"
+                            type="button"
+                          >
+                            <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M12 9V11M12 15H12.01M5.07183 19H18.9282C20.4678 19 21.4301 17.3333 20.6603 16L13.7321 4C12.9623 2.66667 11.0378 2.66667 10.2679 4L3.33978 16C2.56998 17.3333 3.53223 19 5.07183 19Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                            Flag as Fake News
+                          </button>
+                          <p className="text-xs text-gray-500 mt-2 text-center">
+                            Flag this news if you believe it's fake. You'll earn TRUE tokens if your prediction is correct.
+                          </p>
+                        </div>
                       </div>
                     )}
-                    
-                    {/* Flag Button - New Addition */}
-                    <div className="mt-8 border-t border-gray-100 pt-6">
-                      <div className="flex justify-between items-center">
-                        <div className="flex items-center text-sm text-gray-500">
-                          <svg className="w-4 h-4 mr-1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12 7V12L15 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
-                          </svg>
-                          Last verified: 2 hours ago
-                        </div>
-                        
-                        <button 
-                          onClick={() => handleFlagNews(selectedNews.id)}
-                          className="flex items-center text-sm px-3 py-1.5 border border-red-300 text-red-600 rounded-md hover:bg-red-50 transition-colors"
-                        >
-                          <svg className="w-4 h-4 mr-1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M3 21L3 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                            <path d="M20 4L8 4C6.97631 4 6.93117 4.97631 6 6C5.06883 7.02369 5.02369 7.02369 4 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                            <path d="M6 7L21 7L17 13L21 19L6 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                          Flag as Fake News
-                        </button>
-                      </div>
-                    </div>
                   </div>
                 )}
               </div>
@@ -802,60 +865,108 @@ export default function NewsFeed() {
             <p className="text-xs text-slate-400 mt-1">© {new Date().getFullYear()} TrueLens. All rights reserved.</p>
           </div>
         </div>
-      </div>
-      
-      {/* Flag Dialog - Fixed implementation without nested style jsx */}
-      {showFlagDialog && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
+        
+        {/* Transaction Notification */}
+        {notification.show && (
           <div 
-            className="relative mx-auto p-8 bg-white w-full max-w-md rounded-xl shadow-2xl transform transition-all"
-            style={{
-              animation: 'dialogAppear 0.3s ease-out forwards'
-            }}
+            className={`fixed bottom-6 right-6 max-w-md w-full shadow-lg rounded-lg overflow-hidden z-50 transform transition-all duration-300 ease-in-out ${
+              notification.show ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
+            }`}
           >
-            <div className="flex items-center justify-center w-12 h-12 rounded-full bg-red-100 text-red-600 mb-6 mx-auto">
-              <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M3 21L3 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M20 4L8 4C6.97631 4 6.93117 4.97631 6 6C5.06883 7.02369 5.02369 7.02369 4 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M6 7L21 7L17 13L21 19L6 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </div>
-            
-            <h3 className="text-2xl font-bold text-center text-gray-900 mb-4">Flag as Fake News</h3>
-            
-            <p className="text-gray-600 mb-6 text-center">
-              You're about to flag this news item as potentially fake or misleading. 
-              If 10%+ of viewers flag this content, it will be removed from the news feed and verified again.
-            </p>
-            
-            <div className="bg-gray-50 p-4 rounded-lg mb-6">
+            <div className={`p-4 ${notification.type === 'success' ? 'bg-green-50' : 'bg-red-50'}`}>
               <div className="flex items-start">
-                <svg className="w-5 h-5 text-amber-500 mr-2 mt-0.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 9V12M12 15H12.01M5.07183 19H18.9282C20.4678 19 21.4301 17.3333 20.6603 16L13.7321 4C12.9623 2.66667 11.0378 2.66667 10.268 4L3.33978 16C2.56998 17.3333 3.53223 19 5.07183 19Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                <p className="text-sm text-gray-600">
-                  This helps maintain the integrity of our platform. Thank you for contributing to our verification process.
-                </p>
+                <div className={`flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center ${
+                  notification.type === 'success' ? 'bg-green-100' : 'bg-red-100'
+                }`}>
+                  {notification.type === 'success' ? (
+                    <svg className="h-6 w-6 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                  ) : (
+                    <svg className="h-6 w-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  )}
+                </div>
+                <div className="ml-3 w-0 flex-1 pt-0.5">
+                  <h3 className={`text-sm font-medium ${notification.type === 'success' ? 'text-green-800' : 'text-red-800'}`}>
+                    {notification.type === 'success' ? 'Transaction Successful' : 'Transaction Failed'}
+                  </h3>
+                  <p className="mt-1 text-sm text-gray-700">{notification.message}</p>
+                  
+                  {notification.type === 'success' && notification.txHash && (
+                    <div className="mt-3 bg-white rounded p-3 border border-gray-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs text-gray-500">Transaction Hash</span>
+                        <a 
+                          href={`https://explorer.testnet.rsk.co/tx/${notification.txHash}`}
+                          target="_blank"
+                          rel="noopener noreferrer" 
+                          className="text-xs text-indigo-600 hover:text-indigo-800"
+                        >
+                          View on Explorer
+                        </a>
+                      </div>
+                      <div className="flex items-center">
+                        <span className="text-xs font-mono text-gray-800 truncate">{notification.txHash}</span>
+                        <button
+                          onClick={() => navigator.clipboard.writeText(notification.txHash || '')}
+                          className="ml-2 text-gray-500 hover:text-gray-700"
+                        >
+                          <svg className="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                          </svg>
+                        </button>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-2 mt-3 text-xs">
+                        <div>
+                          <span className="text-gray-500">Network</span>
+                          <p className="font-medium text-gray-800">Rootstock Testnet</p>
+                        </div>
+                        <div>
+                          <span className="text-gray-500">Status</span>
+                          <p className="font-medium text-green-600">Confirmed</p>
+                        </div>
+                        <div>
+                          <span className="text-gray-500">Gas Fee</span>
+                          <p className="font-medium text-gray-800">{notification.gasFee}</p>
+                        </div>
+                        <div>
+                          <span className="text-gray-500">Total Cost</span>
+                          <p className="font-medium text-gray-800">{notification.totalCost}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="mt-3 pt-3 border-t border-gray-100">
+                        <div className="flex items-center">
+                          <svg className="h-4 w-4 text-yellow-500 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <p className="text-xs text-gray-600">
+                            You've staked 10 TRUE tokens. If your flag is correct, you'll be rewarded with up to 50 TRUE tokens.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <div className="ml-4 flex-shrink-0 flex">
+                  <button
+                    className="bg-transparent rounded-md inline-flex text-gray-400 hover:text-gray-500 focus:outline-none"
+                    onClick={() => setNotification(prev => ({...prev, show: false}))}
+                  >
+                    <span className="sr-only">Close</span>
+                    <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
               </div>
             </div>
-            
-            <div className="flex justify-end space-x-3">
-              <button 
-                onClick={() => setShowFlagDialog(false)}
-                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
-              >
-                Cancel
-              </button>
-              <button 
-                onClick={submitFlag}
-                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
-              >
-                Confirm Flag
-              </button>
-            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </>
   );
 } 

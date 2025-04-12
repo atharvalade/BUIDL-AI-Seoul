@@ -328,49 +328,56 @@ export default function ProfilePage() {
         }
       `}</style>
       
-      {/* Profile Header */}
-      <div className="w-full bg-[#0F172A] text-white">
-        <div className="max-w-[1440px] mx-auto px-6 py-16">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
-            <div>
-              <div className="flex items-center mb-4">
-                <div className="bg-white/10 backdrop-blur-sm rounded-full p-3 mr-4">
-                  <svg className="w-8 h-8 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Profile Header - Updated with modern UI */}
+      <div className="w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 mt-[-1px]">
+        <div className="max-w-[1440px] mx-auto px-6 py-10">
+          <div className="relative rounded-2xl bg-white/10 backdrop-blur-md shadow-xl overflow-hidden p-6 border border-white/20">
+            {/* Background design elements */}
+            <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+              <div className="absolute -top-24 -right-24 w-48 h-48 rounded-full bg-purple-500/20 blur-2xl"></div>
+              <div className="absolute -bottom-24 -left-24 w-48 h-48 rounded-full bg-blue-500/20 blur-2xl"></div>
+              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-32 bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10 blur-3xl"></div>
+            </div>
+
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8 relative z-10">
+              <div className="flex items-center">
+                <div className="bg-white/15 backdrop-blur-lg rounded-full p-4 mr-5 shadow-lg border border-white/20">
+                  <svg className="w-10 h-10 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     <path d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 </div>
                 <div>
                   <div className="flex items-center">
-                    <h1 className="text-2xl md:text-3xl font-bold">{USER_DATA.address}</h1>
-                    <div className="ml-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full px-3 py-1 text-xs font-medium">
+                    <h1 className="text-2xl md:text-3xl font-bold text-white">{USER_DATA.address}</h1>
+                    <div className="ml-3 bg-white/20 border border-white/40 rounded-full px-4 py-1 text-sm font-medium text-white shadow-sm backdrop-blur-md">
                       Level {USER_DATA.level}
                     </div>
                   </div>
-                  <p className="text-gray-300 mt-1">Verification Accuracy: {USER_DATA.accuracy}%</p>
+                  <p className="text-white/80 mt-2 font-medium">Verification Accuracy: {USER_DATA.accuracy}%</p>
                 </div>
               </div>
-            </div>
-            
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-8 w-full md:w-auto">
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center">
-                <div className="text-2xl font-bold">{USER_DATA.tokens}</div>
-                <div className="text-xs text-gray-300">TRUE Tokens</div>
-              </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center">
-                <div className="text-2xl font-bold">{USER_DATA.totalVerified}</div>
-                <div className="text-xs text-gray-300">News Verified</div>
-              </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center md:col-span-1 col-span-2">
-                <div className="text-2xl font-bold">{USER_DATA.pointsEarned}</div>
-                <div className="text-xs text-gray-300">Points Earned</div>
+              
+              <div className="grid grid-cols-3 gap-4 w-full md:w-auto">
+                <div className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-xl p-5 text-center shadow-lg transform transition-transform hover:scale-105">
+                  <div className="text-2xl font-bold text-white">{USER_DATA.tokens}</div>
+                  <div className="text-sm text-white/80 font-medium">TRUE Tokens</div>
+                </div>
+                <div className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-xl p-5 text-center shadow-lg transform transition-transform hover:scale-105">
+                  <div className="text-2xl font-bold text-white">{USER_DATA.totalVerified}</div>
+                  <div className="text-sm text-white/80 font-medium">News Verified</div>
+                </div>
+                <div className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-xl p-5 text-center shadow-lg transform transition-transform hover:scale-105">
+                  <div className="text-2xl font-bold text-white">{USER_DATA.pointsEarned}</div>
+                  <div className="text-sm text-white/80 font-medium">Points Earned</div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
       
-      {/* Tabs */}
+      {/* Tabs - Update styling slightly */}
       <div className="border-b border-gray-200 bg-white">
         <div className="max-w-[1440px] mx-auto px-6">
           <div className="flex space-x-8">
@@ -378,7 +385,7 @@ export default function ProfilePage() {
               onClick={() => setActiveTab("dashboard")}
               className={`py-4 px-1 inline-flex items-center border-b-2 text-sm font-medium ${
                 activeTab === "dashboard"
-                  ? "border-black text-black"
+                  ? "border-indigo-600 text-indigo-600"
                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
               }`}
             >
@@ -388,7 +395,7 @@ export default function ProfilePage() {
               onClick={() => setActiveTab("verifications")}
               className={`py-4 px-1 inline-flex items-center border-b-2 text-sm font-medium ${
                 activeTab === "verifications"
-                  ? "border-black text-black"
+                  ? "border-indigo-600 text-indigo-600"
                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
               }`}
             >
@@ -398,7 +405,7 @@ export default function ProfilePage() {
               onClick={() => setActiveTab("leaderboard")}
               className={`py-4 px-1 inline-flex items-center border-b-2 text-sm font-medium ${
                 activeTab === "leaderboard"
-                  ? "border-black text-black"
+                  ? "border-indigo-600 text-indigo-600"
                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
               }`}
             >
@@ -408,7 +415,7 @@ export default function ProfilePage() {
               onClick={() => setActiveTab("settings")}
               className={`py-4 px-1 inline-flex items-center border-b-2 text-sm font-medium ${
                 activeTab === "settings"
-                  ? "border-black text-black"
+                  ? "border-indigo-600 text-indigo-600"
                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
               }`}
             >
@@ -418,8 +425,8 @@ export default function ProfilePage() {
         </div>
       </div>
       
-      {/* Content */}
-      <div className="max-w-[1440px] mx-auto px-6 py-12">
+      {/* Content - slightly reduce the top padding */}
+      <div className="max-w-[1440px] mx-auto px-6 py-8">
         {activeTab === "dashboard" && (
           <div className="space-y-10">
             {/* Progress to next level */}
