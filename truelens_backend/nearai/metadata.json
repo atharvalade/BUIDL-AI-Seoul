@@ -1,0 +1,23 @@
+{
+  "category": "agent",
+  "namespace": "atharvalade.near",
+  "name": "news-analyzer",
+  "version": "0.0.1",
+  "description": "AI agent that fetches, analyzes, and summarizes news articles with sentiment analysis and trading recommendations",
+  "tags": ["news", "finance", "trading", "analysis"],
+  "details": {
+    "agent": {
+      "defaults": {
+        "model": "llama-v3p1-70b-instruct",
+        "model_provider": "fireworks",
+        "model_temperature": 0.3,
+        "model_max_tokens": 16384
+      },
+      "framework": "standard",
+      "env_vars": {
+        "API_ENDPOINT": "http://localhost:8000/api/news"
+      }
+    }
+  },
+  "show_entry": true
+} 

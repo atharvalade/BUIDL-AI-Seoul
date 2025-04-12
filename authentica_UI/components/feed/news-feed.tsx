@@ -19,7 +19,34 @@ interface NewsItem {
   sentiment: "positive" | "negative" | "neutral";
   confidence: number;
   verified: boolean;
+  tradeRecommendations?: { direction: 'buy' | 'sell'; symbol: string; rationale?: string; targetPrice?: string }[];
+  ipfsHash?: string;
+  socialSources?: string[];
 }
+
+// Add helper function to determine source logos
+const getSourceLogo = (source: string) => {
+  switch(source) {
+    case "Reuters":
+      return "/source-logos/reuters.svg";
+    case "The Guardian":
+      return "/source-logos/guardian.svg";
+    case "Bloomberg":
+      return "/source-logos/bloomberg.svg";
+    case "CoinDesk":
+      return "/source-logos/coindesk.svg";
+    case "TechCrunch":
+      return "/source-logos/techcrunch.svg";
+    case "X":
+      return "/source-logos/x.svg";
+    case "Truth Social":
+      return "/source-logos/truth-social.svg";
+    case "YouTube":
+      return "/source-logos/youtube.svg";
+    default:
+      return "/source-logos/news.svg";
+  }
+};
 
 export default function NewsFeed() {
   const [selectedNewsItem, setSelectedNewsItem] = useState<string | null>(null);
@@ -44,7 +71,13 @@ export default function NewsFeed() {
           tradingInsights: "This news is likely to create bullish sentiment for US stocks, particularly in sectors most impacted by corporate tax rates such as retail, manufacturing, and technology. Cryptocurrencies may also see positive movement as reduced taxes could increase institutional investment capacity.",
           sentiment: "positive",
           confidence: 92,
-          verified: true
+          verified: true,
+          tradeRecommendations: [
+            { direction: 'buy', symbol: 'AAPL', rationale: 'Apple is expected to benefit from the tax cuts', targetPrice: '$150' },
+            { direction: 'buy', symbol: 'GOOGL', rationale: 'Google is expected to benefit from the tax cuts', targetPrice: '$2800' },
+          ],
+          ipfsHash: 'QmXZ4YEWQfKRKvDYYBNqFtfFhUazdJPEzuzh6BDFnj4xJr',
+          socialSources: ['Twitter', 'Facebook']
         },
         {
           id: "2",
@@ -58,7 +91,12 @@ export default function NewsFeed() {
           tradingInsights: "This news could create headwinds for growth stocks and cryptocurrencies, which typically perform better in low-interest environments. Consider reducing exposure to high-multiple tech stocks and increasing allocation to financial sector stocks, which often benefit from higher rates.",
           sentiment: "negative",
           confidence: 87,
-          verified: true
+          verified: true,
+          tradeRecommendations: [
+            { direction: 'sell', symbol: 'TSLA', rationale: 'Tesla stock may underperform in a higher interest rate environment', targetPrice: '$100' },
+          ],
+          ipfsHash: 'QmXZ4YEWQfKRKvDYYBNqFtfFhUazdJPEzuzh6BDFnj4xJr',
+          socialSources: ['Twitter', 'Facebook']
         },
         {
           id: "3",
@@ -72,7 +110,9 @@ export default function NewsFeed() {
           tradingInsights: "While increased regulation may create short-term volatility in cryptocurrency markets, the long-term effect could be positive by legitimizing the asset class and encouraging institutional participation. Consider maintaining positions in larger, regulatory-compliant cryptocurrencies.",
           sentiment: "neutral",
           confidence: 78,
-          verified: true
+          verified: true,
+          ipfsHash: 'QmXZ4YEWQfKRKvDYYBNqFtfFhUazdJPEzuzh6BDFnj4xJr',
+          socialSources: ['Twitter', 'Facebook']
         },
         {
           id: "4",
@@ -86,7 +126,9 @@ export default function NewsFeed() {
           tradingInsights: "This ongoing situation could negatively impact retail and manufacturing stocks dependent on timely imports, while potentially benefiting domestic producers with less exposure to international supply chains. Logistics companies may see mixed results as volume increases but costs rise.",
           sentiment: "negative",
           confidence: 85,
-          verified: false
+          verified: false,
+          ipfsHash: 'QmXZ4YEWQfKRKvDYYBNqFtfFhUazdJPEzuzh6BDFnj4xJr',
+          socialSources: ['Twitter', 'Facebook']
         },
         {
           id: "5",
@@ -100,7 +142,9 @@ export default function NewsFeed() {
           tradingInsights: "This significant investment signals confidence in AI technology's future and may boost the company's stock. Consider this positive for the broader tech sector, particularly companies specializing in semiconductors and cloud computing infrastructure needed for AI development.",
           sentiment: "positive",
           confidence: 90,
-          verified: true
+          verified: true,
+          ipfsHash: 'QmXZ4YEWQfKRKvDYYBNqFtfFhUazdJPEzuzh6BDFnj4xJr',
+          socialSources: ['Twitter', 'Facebook']
         }
       ]);
       setSelectedNewsItem("1");
@@ -295,24 +339,63 @@ export default function NewsFeed() {
                       }`}
                     >
                       <div className="flex items-center space-x-2 mb-1.5">
-                        <span
-                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-                            item.source === "Reuters"
-                              ? "bg-blue-50 text-blue-700"
-                              : item.source === "Bloomberg"
-                              ? "bg-purple-50 text-purple-700"
-                              : item.source === "The Guardian"
-                              ? "bg-amber-50 text-amber-700"
-                              : item.source === "CoinDesk"
-                              ? "bg-emerald-50 text-emerald-700"
-                              : "bg-orange-50 text-orange-700"
-                          }`}
-                        >
-                          {item.source}
-                        </span>
+                        {/* Source with logo */}
+                        <div className="flex items-center">
+                          <div className="h-4 w-4 mr-1.5 relative">
+                            <img 
+                              src={getSourceLogo(item.source)} 
+                              alt={item.source}
+                              className="h-full w-full object-contain"
+                            />
+                          </div>
+                          <span
+                            className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                              item.source === "Reuters"
+                                ? "bg-blue-50 text-blue-700"
+                                : item.source === "Bloomberg"
+                                ? "bg-purple-50 text-purple-700"
+                                : item.source === "The Guardian"
+                                ? "bg-amber-50 text-amber-700"
+                                : item.source === "CoinDesk"
+                                ? "bg-emerald-50 text-emerald-700"
+                                : "bg-orange-50 text-orange-700"
+                            }`}
+                          >
+                            {item.source}
+                          </span>
+                        </div>
                         <span className="text-xs text-slate-400">{item.date}</span>
                       </div>
                       <h3 className="font-medium text-slate-900 line-clamp-2 leading-snug text-sm">{item.title}</h3>
+                      
+                      {/* Display trade recommendations if available */}
+                      {item.tradeRecommendations && (
+                        <div className="mt-2 flex flex-wrap gap-1">
+                          {item.tradeRecommendations.map((rec, idx) => (
+                            <span key={idx} className={`text-xs px-1.5 py-0.5 rounded ${
+                              rec.direction === 'buy' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
+                            }`}>
+                              {rec.direction === 'buy' ? '↑' : '↓'} {rec.symbol}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      
+                      {/* IPFS verification link */}
+                      <div className="mt-2 flex items-center">
+                        <svg className="h-3 w-3 mr-1 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                        </svg>
+                        <a 
+                          href={`https://ipfs.io/ipfs/${item.ipfsHash || 'QmXZ4YEWQfKRKvDYYBNqFtfFhUazdJPEzuzh6BDFnj4xJr'}`} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="text-xs text-slate-500 hover:text-slate-700 hover:underline"
+                        >
+                          Verified on IPFS
+                        </a>
+                      </div>
                     </button>
                   </div>
                 ))
@@ -329,19 +412,23 @@ export default function NewsFeed() {
                     <div className="mb-6">
                       <div className="flex items-center justify-between mb-5">
                         <div className="flex items-center space-x-3">
-                          <span
-                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                              selectedNews.source === "Reuters"
-                                ? "bg-blue-100/70 text-blue-800"
-                                : selectedNews.source === "Bloomberg"
-                                ? "bg-purple-100/70 text-purple-800"
-                                : "bg-orange-100/70 text-orange-800"
-                            }`}
-                          >
-                            {selectedNews.source}
-                          </span>
+                          {/* Source with logo */}
+                          <div className="flex items-center space-x-2">
+                            <div className="h-5 w-5 relative">
+                              <img 
+                                src={getSourceLogo(selectedNews.source)} 
+                                alt={selectedNews.source}
+                                className="h-full w-full object-contain"
+                              />
+                            </div>
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100/70 text-blue-800">
+                              {selectedNews.source}
+                            </span>
+                          </div>
                           <span className="text-sm text-slate-500">{selectedNews.date}</span>
                         </div>
+                        
+                        {/* Verification badge */}
                         <div className="flex items-center">
                           <div 
                             className={`flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
@@ -365,7 +452,28 @@ export default function NewsFeed() {
                           </div>
                         </div>
                       </div>
+                      
                       <h1 className="text-3xl font-semibold text-slate-900 leading-tight mb-5">{selectedNews.title}</h1>
+                      
+                      {/* Social Media Sources */}
+                      {selectedNews.socialSources && (
+                        <div className="flex items-center mb-6 mt-4">
+                          <span className="text-xs text-slate-500 mr-2">Also reported on:</span>
+                          <div className="flex space-x-2">
+                            {selectedNews.socialSources.map((platform, idx) => (
+                              <div key={idx} className="h-6 w-6 relative">
+                                <img 
+                                  src={getSourceLogo(platform)} 
+                                  alt={platform}
+                                  className="h-full w-full object-contain"
+                                  title={platform}
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      
                       <div className="flex items-center justify-between mt-7 mb-9">
                         <div className="flex items-center space-x-4">
                           <div className="flex items-center space-x-1">
@@ -399,6 +507,7 @@ export default function NewsFeed() {
                       </div>
                     </div>
                     
+                    {/* Display article image */}
                     {selectedNews.imageUrl && (
                       <div className="mb-9 -mx-8">
                         <img
@@ -409,6 +518,7 @@ export default function NewsFeed() {
                       </div>
                     )}
                     
+                    {/* Article Content */}
                     <div className="prose prose-slate max-w-none">
                       {selectedNews.content.split('\n\n').map((paragraph, idx) => (
                         <p key={idx} className="mb-5 text-slate-700 leading-relaxed text-base">
@@ -417,6 +527,46 @@ export default function NewsFeed() {
                       ))}
                     </div>
                     
+                    {/* Trading Recommendations Section */}
+                    {selectedNews.tradeRecommendations && selectedNews.tradeRecommendations.length > 0 && (
+                      <div className="mt-10 pt-6 border-t border-slate-100">
+                        <h3 className="font-medium text-slate-900 mb-4">Trading Recommendations</h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          {selectedNews.tradeRecommendations.map((rec, idx) => (
+                            <div key={idx} className={`rounded-lg p-4 ${
+                              rec.direction === 'buy' ? 'bg-green-50 border border-green-100' : 'bg-red-50 border border-red-100'
+                            }`}>
+                              <div className="flex items-center justify-between mb-2">
+                                <div className="flex items-center">
+                                  <span className={`text-lg font-medium ${
+                                    rec.direction === 'buy' ? 'text-green-700' : 'text-red-700'
+                                  }`}>{rec.symbol}</span>
+                                  <span className={`ml-2 px-2 py-0.5 rounded text-xs font-medium ${
+                                    rec.direction === 'buy' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                  }`}>
+                                    {rec.direction.toUpperCase()}
+                                  </span>
+                                </div>
+                                <span className={`text-xl font-bold ${
+                                  rec.direction === 'buy' ? 'text-green-600' : 'text-red-600'
+                                }`}>
+                                  {rec.direction === 'buy' ? '↑' : '↓'}
+                                </span>
+                              </div>
+                              <p className="text-sm text-slate-700">{rec.rationale}</p>
+                              {rec.targetPrice && (
+                                <div className="mt-2 text-sm">
+                                  <span className="text-slate-600">Target: </span>
+                                  <span className="font-medium">{rec.targetPrice}</span>
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* AI Analysis Section */}
                     <div className="mt-10 pt-6 border-t border-slate-100">
                       <h3 className="font-medium text-slate-900 mb-3">AI Analysis</h3>
                       <div className="bg-slate-50 rounded-xl p-5 ring-1 ring-slate-100">
@@ -441,6 +591,7 @@ export default function NewsFeed() {
                       </div>
                     </div>
                     
+                    {/* Verification Details Section */}
                     <div className="mt-10 pt-6 border-t border-slate-100">
                       <h3 className="font-medium text-slate-900 mb-3">Verification Details</h3>
                       <div className="bg-slate-50 rounded-xl p-5 ring-1 ring-slate-100">
@@ -462,9 +613,36 @@ export default function NewsFeed() {
                             <p className="text-sm font-medium text-slate-900">3 sources</p>
                           </div>
                         </div>
+                        
+                        {/* IPFS Verification Link */}
+                        <div className="mt-5 pt-5 border-t border-slate-200">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center">
+                              <svg className="w-5 h-5 mr-2 text-slate-700" viewBox="0 0 80 80" fill="currentColor">
+                                <path d="M40 10L13.5 25v30L40 70l26.5-15V25L40 10zm-.95 10.83l18.38 10.82-6.31 3.71-12.07-7.08v-.01l-12.03 7.04-6.3-3.7 18.33-10.78zm-19.25 28.35l-5.66-3.32V29.68l5.66 3.33v16.17zm6.24 3.67l12.07 7.09 12.07-7.09V34.15l-12.07 7.08-12.07-7.08v18.7zm25.6-3.67V33.01l5.66-3.33v16.18l-5.66 3.32z"/>
+                              </svg>
+                              <div>
+                                <p className="text-sm font-medium text-slate-900">Content verified on IPFS</p>
+                                <p className="text-xs text-slate-500">Immutable, decentralized verification</p>
+                              </div>
+                            </div>
+                            <a 
+                              href={`https://ipfs.io/ipfs/${selectedNews.ipfsHash || 'QmXZ4YEWQfKRKvDYYBNqFtfFhUazdJPEzuzh6BDFnj4xJr'}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md text-slate-700 bg-white border border-slate-200 hover:bg-slate-50"
+                            >
+                              View on IPFS
+                              <svg className="w-3.5 h-3.5 ml-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                              </svg>
+                            </a>
+                          </div>
+                        </div>
                       </div>
                     </div>
                     
+                    {/* Action Buttons */}
                     <div className="mt-8 flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
                       <button
                         className="inline-flex items-center justify-center px-5 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-slate-900 hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-900 transition-colors duration-200"
