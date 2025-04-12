@@ -35,13 +35,11 @@ export default function NavBar() {
         <div className="mx-5 flex h-16 w-full max-w-screen-xl items-center justify-between">
           <Link href="/" className="flex items-center mt-1 relative">
             <div className="relative w-[240px] h-[50px]">
-              <Image 
-                src="/TrueLens_Logo.svg" 
-                alt="TrueLens logo"
-                className="w-full h-full object-contain"
-                width={240}
-                height={50}
-                priority
+              <object 
+                data={`/TrueLens_Logo.svg?v=${new Date().getTime()}`}
+                type="image/svg+xml"
+                className="w-full h-full"
+                aria-label="TrueLens logo"
               />
             </div>
           </Link>

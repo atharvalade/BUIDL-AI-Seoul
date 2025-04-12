@@ -190,7 +190,7 @@ export default function NewsFeed() {
 
   return (
     <>
-      {/* This wrapper ensures full coverage with white background and fixes footer issues */}
+      {/* Enhanced selectors to properly hide gradient backgrounds and ensure white background */}
       <style jsx global>{`
         body {
           background: white !important;
@@ -202,21 +202,29 @@ export default function NewsFeed() {
           padding: 0 !important;
         }
         
-        /* Hide the original footer with gradient */
-        .footer-container, footer, 
+        /* More specific selectors to target and hide the gradient footer and background elements */
+        footer, 
+        .footer-container, 
+        main > div:last-child:not(.news-feed-container),
+        main + div,
+        div[class*="footer"],
+        div[style*="gradient"],
         main > div > div:last-child:not(.news-feed-container) {
           display: none !important;
+          opacity: 0 !important;
+          visibility: hidden !important;
         }
       `}</style>
       
       <div className="w-full flex flex-col news-feed-container">
-        {/* Remove duplicate header - the site already has a header with navigation */}
+        {/* Add top padding to account for the header */}
+        <div className="pt-5"></div>
         
         {/* News feed layout - Full-width container with proper spacing */}
-        <div className="flex flex-col md:flex-row w-full h-[calc(100vh-5rem)]">
+        <div className="flex flex-col md:flex-row w-full h-[calc(100vh-6rem)]">
           {/* News items sidebar - Redesigned with improved item separation */}
           <div className="w-full md:w-[350px] bg-white h-full flex flex-col shadow-sm">
-            <div className="px-4 py-3 bg-white/95 backdrop-blur-sm border-b border-slate-100">
+            <div className="px-4 py-4 bg-white/95 backdrop-blur-sm border-b border-slate-100">
               <div className="flex items-center justify-between mb-3">
                 <h2 className="text-xs uppercase tracking-wider text-slate-500 font-medium">LATEST NEWS</h2>
                 <div className="flex items-center space-x-1">
@@ -492,8 +500,8 @@ export default function NewsFeed() {
           </div>
         </div>
         
-        {/* Custom footer with proper white background */}
-        <div className="w-full py-3 border-t border-slate-100 mt-auto bg-white">
+        {/* Custom footer with proper white background and explicit positioning */}
+        <div className="w-full py-3 border-t border-slate-100 bg-white relative z-10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center">
             <p className="text-sm text-slate-500">TrueLens - Verified News for Better Trading</p>
             <p className="text-xs text-slate-400 mt-1">© {new Date().getFullYear()} TrueLens. All rights reserved.</p>
