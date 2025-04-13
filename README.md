@@ -105,28 +105,4 @@ npm install
 npm run dev
 ```
 
-## Project Status
-
-TrueLens is currently in development, with the following components in progress:
-- SAGA chainlet deployment
-- Rootstock smart contracts
-- Hyperlane bridge integration
-- AI agents for news verification
-- UI implementation
-
-## Contributing
-
-We welcome contributions to the TrueLens project. Please see our contributing guidelines for more information.
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Acknowledgments
-
-TrueLens is being developed as part of the BUIDL-AI-Seoul hackathon, targeting bounties from:
-- NEAR AI
-- Nethermind
-- Story Protocol
-- SAGA
-- Rootstock
+Made with ❤️ in Seoul by Atharva
